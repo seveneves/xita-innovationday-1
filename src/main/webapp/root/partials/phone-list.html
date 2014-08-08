@@ -9,20 +9,21 @@
         <option value="name">Alphabetical</option>
         <option value="age">Newest</option>
       </select>
-
+	
     </div>
     <div class="col-md-10">
       <!--Body content-->
 
-      <ul class="phones">
+      <ul class="phones" >
         <li ng-repeat="phone in phones | filter:query | orderBy:orderProp"
             class="thumbnail phone-listing">
           <a href="#/phones/{{phone.id}}" class="thumb"><img ng-src="{{phone.imageUrl}}"></a>
-          <a href="#/phones/{{phone.id}}">{{phone.name}}</a>
+          <a href="#/phones/{{phone.id}}">{{phone.name}}</a><button ng-click="addToCart(phone.id)">Add to Shopping Cart</button>
           <p>{{phone.snippet}}</p>
+          
         </li>
       </ul>
-
+ 
     </div>
   </div>
 </div>

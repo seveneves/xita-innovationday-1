@@ -25,6 +25,12 @@ class MyServiceSpec extends Specification with Specs2RouteTest with MyService {
       }
     }
 
+     "GET requests to root must be redirected" in {
+      Get("/") ~> myRoute ~> check {
+        handled must beTrue
+      }
+    }
+      
     "return a MethodNotAllowed error for PUT requests to the root path" in {
       Put() ~> sealRoute(myRoute) ~> check {
         status === MethodNotAllowed
