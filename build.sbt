@@ -27,8 +27,12 @@ scalacOptions := Seq("-encoding", "utf8",
                      "-Xlog-reflective-calls"
                     )
 
-//unmanagedBase := baseDirectory.value / "lib"
 unmanagedBase <<= baseDirectory { base => base / "lib" }
+
+unmanagedResourceDirectories in Compile <++= baseDirectory { base =>
+    Seq( base / "src/main/webapp" )
+}
+
 
 mainClass := Some("org.up.pi.Main")
 

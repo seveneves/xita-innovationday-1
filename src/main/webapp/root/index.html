@@ -1,77 +1,28 @@
-<!DOCTYPE html>
-<html lang="en">
-  <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="">
-    <meta name="author" content="">
+<!doctype html>
+<html lang="en" ng-app="phonecatApp">
+<head>
+  <meta charset="utf-8">
+  <title>Google Phone Gallery</title>
+  <link rel="stylesheet" href="bower_components/bootstrap/dist/css/bootstrap.css">
+  <link rel="stylesheet" href="css/app.css">
+  <link rel="stylesheet" href="css/animations.css">
 
-    <title>AngularJS-Spray-Bootstrap project template</title>
+  <script src="bower_components/jquery/jquery.js"></script>
+  <script src="bower_components/angular/angular.js"></script>
+  <script src="bower_components/angular-animate/angular-animate.js"></script>
+  <script src="bower_components/angular-route/angular-route.js"></script>
+  <script src="bower_components/angular-resource/angular-resource.js"></script>
+  <script src="js/app.js"></script>
+  <script src="js/animations.js"></script>
+  <script src="js/controllers.js"></script>
+  <script src="js/filters.js"></script>
+  <script src="js/services.js"></script>
+</head>
+<body>
 
-    <!-- Bootstrap core CSS -->
-    <link href="bootstrap/css/bootstrap.css" rel="stylesheet">
+  <div class="view-container">
+    <div ng-view class="view-frame"></div>
+  </div>
 
-    <!-- Custom styles for this template -->
-    <link href="css/jumbotron-narrow.css" rel="stylesheet">
-
-    <!-- Angular JS -->
-    <script src="http://code.angularjs.org/1.0.6/angular.min.js"></script>
-  </head>
-
-  <body>
-
-    <div class="container-narrow">
-      <div class="header">
-        <ul class="nav nav-pills pull-right">
-          <li><a href="#">About</a></li>
-          <li><a href="#">Contact</a></li>
-        </ul>
-        <h3 class="text-muted">AngularJS-Spray-Bootstrap project template</h3>
-      </div>
-
-      <div class="jumbotron">
-          <h1>Lorem ipsum</h1>
-          <p class="lead">dolor sit amet, consectetur adipiscing elit. Mauris accumsan ullamcorper ligula et vulputate. Integer tristique vestibulum ipsum, vitae fermentum sem dapibus porta. Mauris bibendum congue odio, ac vestibulum quam semper sit amet. Integer ultrices ante a nunc condimentum laoreet at eget nisl. Donec et placerat mi, non ultricies eros. Praesent tempor ultricies odio, sit amet commodo metus egestas quis. In vitae dignissim arcu. Donec ac velit elit. Morbi eget fermentum lorem. Cras non lacus sit amet urna semper bibendum at et massa. Fusce et tellus eget lacus gravida sodales. Duis ac scelerisque magna, in consectetur urna. Cras placerat neque lorem, vitae convallis quam vulputate et. Pellentesque eu ipsum condimentum, tristique mi at, blandit sem.</p>
-      </div>
-
-      <div class="row marketing">
-        <div class="col-lg-6">
-          <h4>Subheading</h4>
-          <p>Donec id elit non mi porta gravida at eget metus. Maecenas faucibus mollis interdum.</p>
-
-          <h4>Subheading</h4>
-          <p>Morbi leo risus, porta ac consectetur ac, vestibulum at eros. Cras mattis consectetur purus sit amet fermentum.</p>
-
-          <h4>Subheading</h4>
-          <p>Maecenas sed diam eget risus varius blandit sit amet non magna.</p>
-        </div>
-
-        <div class="col-lg-6">
-          <h4>Subheading</h4>
-          <p>Donec id elit non mi porta gravida at eget metus. Maecenas faucibus mollis interdum.</p>
-
-          <h4>Subheading</h4>
-          <p>Morbi leo risus, porta ac consectetur ac, vestibulum at eros. Cras mattis consectetur purus sit amet fermentum.</p>
-
-          <h4>Subheading</h4>
-          <p>Maecenas sed diam eget risus varius blandit sit amet non magna.</p>
-        </div>
-      </div>
-
-      <div class="footer">
-        <p>&copy; DiversIT Europe 2013</p>
-      </div>
-
-    </div> <!-- /container -->
-
-    <style type="text/css">
-        .css-form input.ng-invalid.ng-dirty {
-            background-color: #FA787E;
-        }
-
-        .css-form input.ng-valid.ng-dirty {
-            background-color: #78FA89;
-        }
-    </style>
-  </body>
+</body>
 </html>
