@@ -8,11 +8,12 @@ phonecatControllers.controller('PhoneListCtrl', ['$scope', 'Phone', 'Cart', func
 	var self = this;
 	$scope.phones = Phone.query();
 	$scope.orderProp = 'age';
-	$scope.addToCart = function(phoneId) {
-		Cart.add(phoneId);
+	$scope.addToCart = function(phone) {
+		Cart.add(phone);
 	}
-	$scope.cartItems = function() {
-		Cart.get();
+	$scope.cartItems =  Cart.get();
+	$scope.removeFromCart = function(phone) {
+		Cart.remove(phone);
 	}
   }]);
 

@@ -9,7 +9,14 @@
         <option value="name">Alphabetical</option>
         <option value="age">Newest</option>
       </select>
-	
+         <ul  class="list-group">
+	    <li ng-repeat="phone in cartItems"
+           class="list-group-item">
+          <a href="#/phones/{{phone.id}}">{{phone.name}}</a><br/>
+          Quantity: {{phone.count}} <a ng-click="removeFromCart(phone)"><img src="img/delete.png" height="15" width="15"/></a>
+        </li>
+        </ul>
+        <button ng-click="alert('To be implemented')" ng-show="cartItems.length > 0">Check out</button>
     </div>
     <div class="col-md-10">
       <!--Body content-->
@@ -18,7 +25,7 @@
         <li ng-repeat="phone in phones | filter:query | orderBy:orderProp"
             class="thumbnail phone-listing">
           <a href="#/phones/{{phone.id}}" class="thumb"><img ng-src="{{phone.imageUrl}}"></a>
-          <a href="#/phones/{{phone.id}}">{{phone.name}}</a><button ng-click="addToCart(phone.id)">Add to Shopping Cart</button>
+          <a href="#/phones/{{phone.id}}">{{phone.name}}</a><button ng-click="addToCart(phone)">Add to Shopping Cart</button>
           <p>{{phone.snippet}}</p>
           
         </li>

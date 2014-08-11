@@ -20,26 +20,23 @@ phonecatServices.factory('Phone', [ '$resource', function($resource) {
 		get : function() {
 			return cartItems;
 		},
-		add : function(itemId) {
+		add : function(phone) {
 			var existing = false;
 			for (var i = 0; i < cartItems.length; i++) {
-				if (cartItems[i].id == itemId) {
+				if (cartItems[i].id == phone.id) {
 					cartItems[i].count = cartItems[i].count + 1;
 					existing = true;
 					break;
 				}
 			}
 			if (!existing) {
-				var item = {
-					id : itemId,
-					count : 1
-				};
-				cartItems.push(item);
+				phone.count = 1;
+				cartItems.push(phone);
 			}
-			console.log('added ' + itemId);
+			console.log('added this: ' + phone);
 		},
-		remove : function(item) {
-			var index = cartItems.indexOf(item);
+		remove : function(phone) {
+			var index = cartItems.indexOf(phone);
 			if (index > -1) {
 				cartItems.splice(index, 1);
 			}
