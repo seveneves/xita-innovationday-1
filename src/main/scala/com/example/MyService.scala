@@ -8,6 +8,7 @@ import MediaTypes._
 import akka.event.Logging
 import spray.http.HttpHeaders.Cookie
 import java.util.UUID
+import spray.httpx.SprayJsonSupport._
 
 // we don't implement our route structure directly in the service actor because
 // we want to be able to test it independently, without having to spin up an actor
@@ -39,39 +40,31 @@ trait MyService extends HttpService with StaticResources with Api {
 
 // TODO implement your REST Api
 trait Api extends HttpService with SessionCookieDirective {
-  implicit val myRejectionHandler = RejectionHandler {
+  implicit val sessionIdGenerationHandler = RejectionHandler {
     case MissingCookieRejection(cookieName) :: _ =>
-      val uuid = UUID.randomUUID().toString()
-      setCookie(HttpCookie("session-id", content = uuid)) {
+      setCookie(HttpCookie("session-id", content = UUID.randomUUID().toString())) {
         redirect("/session-id-test", StatusCodes.TemporaryRedirect)
       }
   }
   val shoppingCartRoutes =
-    get {
-      path("session-id-test-old") {
-        val uuid = UUID.randomUUID().toString()
-        println(uuid)
-        sessionCookie("session-id", uuid) { sessionCookie =>
-          complete { s"the session cookie is $sessionCookie" }
-        }
-      }
-      path("session-id-test-ok1") {
-        dynamic {
-          val uuid = UUID.randomUUID().toString()
-          setCookie(HttpCookie("session-id", content = uuid)) {
-            complete { s"the session cookie is " }
+    //val shoppingCartRepo = Map()
+    cookie("session-id") { sessionCookie =>
+      path("cart") {
+        post {
+          entity(as[AddToCartRequest]) { request =>
+            complete(s"Added: ${request.productId}")
           }
-        }
-      }
-      path("set-session") {
-        dynamic {
-          val uuid = UUID.randomUUID().toString()
-          setCookie(HttpCookie("session-id", content = uuid)) {
-            redirect("/session-id-test", StatusCodes.PermanentRedirect)
+        } ~
+          delete {
+            entity(as[RemoveFromCartRequest]) { request =>
+              complete(s"Deleted: ${request.productId}")
+            }
           }
-        }
+      } ~ get {
+    	  complete("bla")
+        
       }
-
+    } ~ get {
       path("session-id-test") {
         cookie("session-id") { sessionCookie =>
           complete { s"the session cookie is " + sessionCookie }
