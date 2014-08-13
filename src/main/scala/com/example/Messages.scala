@@ -15,7 +15,7 @@ object RemoveFromCartRequest extends DefaultJsonProtocol {
 
 case class GetCartRequest() 
 
-case class ShoppingCartItem(item: Device, count: Int)
+case class ShoppingCartItem(item: Device, count: Int = 1)
 
 object ShoppingCartItem extends DefaultJsonProtocol {
   implicit val format = jsonFormat2(ShoppingCartItem.apply)

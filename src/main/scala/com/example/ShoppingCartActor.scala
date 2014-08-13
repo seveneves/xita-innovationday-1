@@ -6,13 +6,25 @@ import akka.actor.Actor
 class ShoppingCartActor(productRepo: ProductRepo) extends Actor with ActorLogging with SessionRepo {
 
   override def receive: Receive = {
-    case RequestContext(sessionId, AddToCartRequest(product)) => 
-      cartContent(sessionId)
-    case RequestContext(sessionId, RemoveFromCartRequest(product)) => 
-       cartContent(sessionId)
-    case RequestContext(sessionId, GetCartRequest()) => cartContent(sessionId)
+    case RequestContext(sessionId, AddToCartRequest(itemId)) =>
+      doWithItem(itemId) { item =>
+        val items = upsertCart(sessionId, item)
+        sender ! items
+      }
+    case RequestContext(sessionId, RemoveFromCartRequest(itemId)) =>
+      doWithItem(itemId) { item =>
+        val items = removeFromCart(sessionId, item)
+        sender ! items
+      }
+    case RequestContext(sessionId, GetCartRequest()) =>
+      sender ! sessionState.get(sessionId).getOrElse(Seq())
   }
-  
-  def cartContent(sessionId:String) = sender ! productRepo.products.take(3).map(p => ShoppingCartItem(p, 1)).toList
+
+  private def doWithItem(itemId: String)(item: Device => Unit) = {
+    val device = productRepo.productMap.get(itemId) match {
+      case Some(device) => item(device)
+      case None => sender ! akka.actor.Status.Failure(new IllegalArgumentException(s"Product with id $itemId not found."))
+    }
+  }
 
 }
