@@ -28,20 +28,20 @@ phonecatServices.factory('Phone', [ '$resource', function($resource) {
 	var updateCart = function(phone) {
 		var existing = false;
 		for (var i = 0; i < cartItems.length; i++) {
-			if (cartItems[i].id == phone.id) {
+			if (cartItems[i].item.id == phone.id) {
 				cartItems[i].count = cartItems[i].count + 1;
 				existing = true;
 				break;
 			}
 		}
 		if (!existing) {
-			phone.count = 1;
-			cartItems.push(phone);
+			var cartItem = {item:phone, count:1};
+			cartItems.push(cartItem);
 		}
 		console.log('added this: ' + phone);
 	}
-	var removeFromCart = function(phone) {
-		var index = cartItems.indexOf(phone);
+	var removeFromCart = function(cartItem) {
+		var index = cartItems.indexOf(cartItem);
 		if (index > -1) {
 			cartItems.splice(index, 1);
 		}
@@ -52,12 +52,12 @@ phonecatServices.factory('Phone', [ '$resource', function($resource) {
 			return cartItems;
 		},
 		add : function(phone) {
-			 return $http.post('/cart', {productId: phone.id})
+			 return $http.post('/cart', {itemId: phone.id})
 			 				.then((function(resp){updateCart(phone)}), sendFailure);
 		},
-		remove : function(phone) {
-			 return $http.post('/cart', {productId: phone.id})
-				.then((function(resp){removeFromCart(phone)}), sendFailure);
+		remove : function(cartItem) {
+			 return $http.delete('/cart?itemId='+cartItem.item.id)
+				.then((function(resp){removeFromCart(cartItem)}), sendFailure);
 		}
 	}
 } ]);

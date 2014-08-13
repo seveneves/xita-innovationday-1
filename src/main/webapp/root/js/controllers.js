@@ -12,8 +12,8 @@ phonecatControllers.controller('PhoneListCtrl', ['$scope', 'Phone', 'Cart', func
 		Cart.add(phone);
 	}
 	$scope.cartItems =  Cart.get();
-	$scope.removeFromCart = function(phone) {
-		Cart.remove(phone);
+	$scope.removeFromCart = function(cartItem) {
+		Cart.remove(cartItem);
 	}
   }]);
 

@@ -2,12 +2,12 @@ package com.example
 
 import spray.json.DefaultJsonProtocol
 
-case class AddToCartRequest(productId: String)
+case class AddToCartRequest(itemId: String)
 
 object AddToCartRequest extends DefaultJsonProtocol {
   implicit val format = jsonFormat1(AddToCartRequest.apply)
 }
-case class RemoveFromCartRequest(productId: String) {
+case class RemoveFromCartRequest(itemId: String) {
 }
 object RemoveFromCartRequest extends DefaultJsonProtocol {
   implicit val format = jsonFormat1(RemoveFromCartRequest.apply)

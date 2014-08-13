@@ -10,10 +10,10 @@
         <option value="age">Newest</option>
       </select>
          <ul  class="list-group">
-	    <li ng-repeat="phone in cartItems"
+	    <li ng-repeat="cartItem in cartItems"
            class="list-group-item">
-          <a href="#/phones/{{phone.id}}">{{phone.name}}</a><br/>
-          Quantity: {{phone.count}} <a ng-click="removeFromCart(phone)">
+          <a href="#/phones/{{cartItem.item.id}}">{{cartItem.item.name}}</a><br/>
+          Quantity: {{cartItem.count}} <a ng-click="removeFromCart(cartItem)">
           	<img src="img/delete.png" height="15" width="15"/>
           </a>
         </li>

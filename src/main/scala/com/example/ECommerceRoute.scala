@@ -69,11 +69,11 @@ trait Api extends HttpService {
             handleCartRequest(RequestContext(sessionCookie.content, addMsg))
           }
         } ~
-          delete {
-            entity(as[RemoveFromCartRequest]) { delMsg =>
-              handleCartRequest(RequestContext(sessionCookie.content, delMsg))
-            }
-          } ~
+          delete  {
+          parameter('itemId) { itemId =>
+              handleCartRequest(RequestContext(sessionCookie.content, RemoveFromCartRequest(itemId)))
+          }
+        }~
           get {
             handleCartRequest(RequestContext(sessionCookie.content, GetCartRequest()))
           }
