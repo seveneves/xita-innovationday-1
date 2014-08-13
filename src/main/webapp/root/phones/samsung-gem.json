@@ -10,7 +10,7 @@
     "battery": {
         "standbyTime": "800 hours", 
         "talkTime": "7 hours", 
-        "type": "Nickel Cadmium (NiCd) (1500 mAH)"
+        "batteryType": "Nickel Cadmium (NiCd) (1500 mAH)"
     }, 
     "camera": {
         "features": [

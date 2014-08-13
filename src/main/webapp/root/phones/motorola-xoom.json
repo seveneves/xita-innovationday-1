@@ -10,7 +10,7 @@
     "battery": {
         "standbyTime": "336 hours", 
         "talkTime": "24 hours", 
-        "type": "Other (3250 mAH)"
+        "batteryType": "Other (3250 mAH)"
     }, 
     "camera": {
         "features": [

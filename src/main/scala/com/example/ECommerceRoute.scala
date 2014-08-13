@@ -1,18 +1,26 @@
 package com.example
 
-import akka.actor.Actor
-import spray.routing._
-import directives.LogEntry
-import spray.http._
-import MediaTypes._
-import akka.event.Logging
-import spray.http.HttpHeaders.Cookie
 import java.util.UUID
+
+import scala.concurrent.ExecutionContext
+import scala.concurrent.Future
+import scala.concurrent.duration._
+import scala.util.Failure
+import scala.util.Success
+
+import akka.actor.Actor
+import akka.actor.ActorRef
+import akka.event.Logging
+import akka.util.Timeout
+import spray.http._
+import spray.http.MediaTypes._
 import spray.httpx.SprayJsonSupport._
+import spray.routing._
+import spray.routing.directives.LogEntry
 
 // we don't implement our route structure directly in the service actor because
 // we want to be able to test it independently, without having to spin up an actor
-class MyServiceActor extends Actor with MyService {
+class ECommerceActor(val cartHandler: ActorRef) extends Actor with ECommerceRoute {
 
   // the HttpService trait defines only one abstract member, which
   // connects the services environment to the enclosing actor or test
@@ -25,8 +33,8 @@ class MyServiceActor extends Actor with MyService {
 }
 
 // this trait defines our service behavior independently from the service actor
-trait MyService extends HttpService with StaticResources with Api {
-
+trait ECommerceRoute extends HttpService with StaticResources with Api {
+  val cartHandler: ActorRef
   def showPath(req: HttpRequest) = req.method match {
     case HttpMethods.POST => LogEntry("Method = %s, Path = %s, Data = %s" format (req.method, req.uri, req.entity), Logging.InfoLevel)
     case _ => LogEntry("Method = %s, Path = %s" format (req.method, req.uri), Logging.InfoLevel)
@@ -39,30 +47,36 @@ trait MyService extends HttpService with StaticResources with Api {
 }
 
 // TODO implement your REST Api
-trait Api extends HttpService with SessionCookieDirective {
+trait Api extends HttpService {
+  implicit val timeout = Timeout(20 seconds)
+  import akka.pattern.ask
+  val cartHandler: ActorRef
+  implicit def executionContext = ExecutionContext.global
+
   implicit val sessionIdGenerationHandler = RejectionHandler {
     case MissingCookieRejection(cookieName) :: _ =>
       setCookie(HttpCookie("session-id", content = UUID.randomUUID().toString())) {
-        redirect("/session-id-test", StatusCodes.TemporaryRedirect)
+        redirect("/", StatusCodes.TemporaryRedirect)
       }
   }
+  import spray.json._
+  import DefaultJsonProtocol._
   val shoppingCartRoutes =
-    //val shoppingCartRepo = Map()
     cookie("session-id") { sessionCookie =>
       path("cart") {
         post {
-          entity(as[AddToCartRequest]) { request =>
-            complete(s"Added: ${request.productId}")
+          entity(as[AddToCartRequest]) { addMsg =>
+            handleCartRequest(RequestContext(sessionCookie.content, addMsg))
           }
         } ~
           delete {
-            entity(as[RemoveFromCartRequest]) { request =>
-              complete(s"Deleted: ${request.productId}")
+            entity(as[RemoveFromCartRequest]) { delMsg =>
+              handleCartRequest(RequestContext(sessionCookie.content, delMsg))
             }
+          } ~
+          get {
+            handleCartRequest(RequestContext(sessionCookie.content, GetCartRequest()))
           }
-      } ~ get {
-    	  complete("bla")
-        
       }
     } ~ get {
       path("session-id-test") {
@@ -71,24 +85,14 @@ trait Api extends HttpService with SessionCookieDirective {
         }
       }
     }
-  private def genSessionIdCookie = HttpCookie("session-id", content = UUID.randomUUID().toString());
-}
-
-trait SessionCookieDirective extends HttpService {
-
-  def sessionCookie(name: String, newSessionId: => String = UUID.randomUUID().toString()): Directive1[HttpCookie] =
-    headerValue(findCookie(name)) | {
-      val sessionCookie = HttpCookie(name, content = newSessionId);
-      println("generated" + sessionCookie)
-      setCookie(sessionCookie)
-      headerValue { case _ => Some(sessionCookie) }
+  def handleCartRequest[T](reqCtx: RequestContext[T]) = {
+    val respFuture = cartHandler.ask(reqCtx).mapTo[Seq[ShoppingCartItem]]
+    onComplete(respFuture) {
+      case Success(res) => complete(res)
+      case Failure(e) => complete(StatusCodes.InternalServerError, e.getMessage())
     }
-
-  private def genSessionIdCookie(name: String) = HttpCookie(name, content = UUID.randomUUID().toString());
-  private def findCookie(name: String): HttpHeader ⇒ Option[HttpCookie] = {
-    case Cookie(cookies) => cookies.find(_.name == name)
-    case _ => None
   }
+
 }
 
 // Trait for serving static resources

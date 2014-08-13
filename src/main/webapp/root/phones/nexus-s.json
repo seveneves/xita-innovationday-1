@@ -16,7 +16,7 @@
     "battery": {
         "standbyTime": "428 hours", 
         "talkTime": "6 hours", 
-        "type": "Lithium Ion (Li-Ion) (1500 mAH)"
+        "batteryType": "Lithium Ion (Li-Ion) (1500 mAH)"
     }, 
     "camera": {
         "features": [
@@ -27,7 +27,7 @@
     }, 
     "connectivity": {
         "bluetooth": "Bluetooth 2.1", 
-        "cell": "Quad-band GSM: 850, 900, 1800, 1900\r\nTri-band HSPA: 900, 2100, 1700\r\nHSPA type: HSDPA (7.2Mbps) HSUPA (5.76Mbps)", 
+        "cell": "Quad-band GSM: 850, 900, 1800, 1900\r\nTri-band HSPA: 900, 2100, 1700\r\nHSPA batteryType: HSDPA (7.2Mbps) HSUPA (5.76Mbps)", 
         "gps": true, 
         "infrared": false, 
         "wifi": "802.11 b/g/n"

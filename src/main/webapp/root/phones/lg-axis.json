@@ -10,7 +10,7 @@
     "battery": {
         "standbyTime": "500 hours", 
         "talkTime": "8 hours", 
-        "type": "Lithium Ion (Li-Ion) (1500 mAH)"
+        "batteryType": "Lithium Ion (Li-Ion) (1500 mAH)"
     }, 
     "camera": {
         "features": [
