@@ -14,18 +14,24 @@ phonecatServices.factory('Phone', [ '$resource', function($resource) {
 			isArray : true
 		}
 	});
-} ]).factory('Cart', ['$http', '$q', function ($http, $q) {
+} ]).factory('Cart', ['$resource', '$http', '$q', function ($resource, $http, $q) {
 	var cartItems = [];
-//	var sendSuccess = function (resp) {
-//          user = resp.data.user;
-//          return user;
-//      };
 	
     var sendFailure = function (err) {
           console.log('Rejecting');
           return $q.reject(err.data);
       };
-	var updateCart = function(phone) {
+  	var initCartItems = function() {
+		$http.get('/cart').success(function(data){
+			cartItems.length = 0;
+		    //see: http://stackoverflow.com/questions/20966878/angularjs-bind-service-array-variable-to-controller-scope
+			//adds the items to the original array, assigning the original array the new reference
+			//would not be seen by angular
+			cartItems.push.apply(cartItems, data);
+		}).error(sendFailure);
+	}
+
+   var updateCart = function(phone) {
 		var existing = false;
 		for (var i = 0; i < cartItems.length; i++) {
 			if (cartItems[i].item.id == phone.id) {
@@ -38,7 +44,6 @@ phonecatServices.factory('Phone', [ '$resource', function($resource) {
 			var cartItem = {item:phone, count:1};
 			cartItems.push(cartItem);
 		}
-		console.log('added this: ' + phone);
 	}
 	var removeFromCart = function(cartItem) {
 		var index = cartItems.indexOf(cartItem);
@@ -46,7 +51,7 @@ phonecatServices.factory('Phone', [ '$resource', function($resource) {
 			cartItems.splice(index, 1);
 		}
 	}
-	
+	initCartItems();
 	return {
 		get : function() {
 			return cartItems;
