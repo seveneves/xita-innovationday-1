@@ -28,8 +28,22 @@ phonecatControllers.controller('PhoneDetailCtrl', ['$scope', '$routeParams', 'Ph
     }
   }]);
 
-phonecatControllers.controller('CartCtrl', ['$scope', 'Phone',
-                                                 function($scope, Phone) {
-                                                   $scope.phones = Phone.query();
-                                                   $scope.orderProp = 'age';
-                                                 }]);
+
+
+phonecatControllers.controller('CheckoutCtrl', ['$location', '$scope', 'Cart',
+  function($location, $scope, Cart) {
+	$scope.orderId = '';
+    $scope.cartItems =  Cart.get();
+
+    $scope.removeFromCart = function(cartItem) {
+		Cart.remove(cartItem);
+	}
+    $scope.placeOrder = function() {
+    	Cart.placeOrder().success(function(orderState) {
+    		if(orderState.state === 'OrderProcessed') {
+    			$scope.orderId = orderState.orderId;
+    			Cart.clearCart();
+    		 }
+    	});
+    }
+ }]);

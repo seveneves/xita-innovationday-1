@@ -12,6 +12,7 @@ case class SizeAndWeight(dimensions: List[String], weight: String)
 case class Storage(flash: String, ram: String)
 case class Device(additionalFeatures: String, android: Android, availability: List[String], battery: Battery, camera: Camera, connectivity: Connectivity, description: String, display: Display, hardware: Hardware, id: String, images: List[String], name: String, sizeAndWeight: SizeAndWeight, storage: Storage)
 
+//product domain
 object Android extends DefaultJsonProtocol {
   implicit val format = jsonFormat2(Android.apply)
 }
@@ -43,3 +44,10 @@ object Storage extends DefaultJsonProtocol {
 object Device extends DefaultJsonProtocol {
   implicit val format = jsonFormat14(Device.apply)
 }
+
+//order domain
+sealed trait OrderState
+
+case class OrderProcessed(orderId:String) extends OrderState
+
+case object OrderProcessingFailed extends OrderState

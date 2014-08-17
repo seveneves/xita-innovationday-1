@@ -25,6 +25,8 @@ trait ProductRepo {
   lazy val productMap: Map[String, Device] = products.map(p => p.id -> p).toMap
 }
 
+
+object SessionRepo extends SessionRepo
 trait SessionRepo {
   import collection.mutable._
   
@@ -36,6 +38,14 @@ trait SessionRepo {
       .getOrElse(Seq())
     sessionState += (sessionId -> updatedItems)
     updatedItems
+  }
+  
+  def getCartItems(sessionId:String) = sessionState.get(sessionId).getOrElse(Seq())
+  
+  def checkoutCart(sessionId:String):Seq[ShoppingCartItem]= {
+    val items = getCartItems(sessionId)
+    sessionState += (sessionId -> Seq())
+    items
   }
 
   def upsertCart(sessionId: String, item: Device):Seq[ShoppingCartItem] = {

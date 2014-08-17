@@ -16,6 +16,7 @@ phonecatServices.factory('Phone', [ '$resource', function($resource) {
 	});
 } ]).factory('Cart', ['$resource', '$http', '$q', function ($resource, $http, $q) {
 	var cartItems = [];
+	var orderId = '';
 	
     var sendFailure = function (err) {
           console.log('Rejecting');
@@ -51,6 +52,12 @@ phonecatServices.factory('Phone', [ '$resource', function($resource) {
 			cartItems.splice(index, 1);
 		}
 	}
+	var clearCart = function() {
+		while(cartItems.length) {
+			cartItems.pop();
+		}
+	}
+	
 	initCartItems();
 	return {
 		get : function() {
@@ -63,6 +70,12 @@ phonecatServices.factory('Phone', [ '$resource', function($resource) {
 		remove : function(cartItem) {
 			 return $http.delete('/cart?itemId='+cartItem.item.id)
 				.then((function(resp){removeFromCart(cartItem)}), sendFailure);
+		},
+		placeOrder :function() {
+			 return $http.put('/order', {});
+		},
+		clearCart: function() {
+			clearCart();
 		}
 	}
 } ]);

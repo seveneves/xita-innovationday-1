@@ -46,7 +46,7 @@ trait ECommerceRoute extends HttpService with StaticResources with Api {
     }
 }
 
-// TODO implement your REST Api
+//REST Api
 trait Api extends HttpService {
   implicit val timeout = Timeout(20 seconds)
   import akka.pattern.ask
@@ -62,36 +62,49 @@ trait Api extends HttpService {
   import spray.json._
   import DefaultJsonProtocol._
   val shoppingCartRoutes =
-    cookie("session-id") { sessionCookie =>
-      path("cart") {
+    pathPrefix("cart") {
+      cookie("session-id") { sessionCookie =>
+        val sessionId = sessionCookie.content
         post {
           entity(as[AddToCartRequest]) { addMsg =>
-            handleCartRequest(RequestContext(sessionCookie.content, addMsg))
+            handleCartRequest(RequestContext(sessionId, addMsg))
           }
         } ~
-          delete  {
-          parameter('itemId) { itemId =>
-              handleCartRequest(RequestContext(sessionCookie.content, RemoveFromCartRequest(itemId)))
-          }
-        }~
+          delete {
+            parameter('itemId) { itemId =>
+              handleCartRequest(RequestContext(sessionId, RemoveFromCartRequest(itemId)))
+            }
+          } ~
           get {
-            handleCartRequest(RequestContext(sessionCookie.content, GetCartRequest()))
+            handleCartRequest(RequestContext(sessionId, GetCartRequest()))
           }
       }
-    } ~ get {
-      path("session-id-test") {
-        cookie("session-id") { sessionCookie =>
-          complete { s"the session cookie is " + sessionCookie }
+    } ~ path("order") {
+      cookie("session-id") { sessionCookie =>
+        put {
+          handleOrderRequest(sessionCookie.content)
         }
       }
     }
-  def handleCartRequest[T](reqCtx: RequestContext[T]) = {
+  private def handleCartRequest[T](reqCtx: RequestContext[T]) = {
     val respFuture = cartHandler.ask(reqCtx).mapTo[Seq[ShoppingCartItem]]
     onComplete(respFuture) {
       case Success(res) => complete(res)
-      case Failure(e) => complete(StatusCodes.InternalServerError, e.getMessage())
+      case Failure(e) => completeWithError(e)
     }
   }
+
+  private def handleOrderRequest(sessionId: String) = {
+    val processingStateFuture = cartHandler.ask(RequestContext(sessionId, OrderRequest()))
+    onComplete(processingStateFuture) {
+      case Success(resp) => resp match {
+        case ok @ OrderProcessed(orderId) => complete(OrderStateResponse(ok.getClass.getSimpleName(), Some(orderId)))
+        case nok => complete(OrderStateResponse(nok.toString))
+      }
+      case Failure(e) => completeWithError(e)
+    }
+  }
+  private def completeWithError(e: Throwable) = complete(StatusCodes.InternalServerError, e.getMessage())
 
 }
 

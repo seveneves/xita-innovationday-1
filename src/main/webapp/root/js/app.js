@@ -5,7 +5,6 @@
 var phonecatApp = angular.module('phonecatApp', [
   'ngRoute',
   'phonecatAnimations',
-
   'phonecatControllers',
   'phonecatFilters',
   'phonecatServices'
@@ -22,6 +21,10 @@ phonecatApp.config(['$routeProvider',
         templateUrl: 'partials/phone-detail.html',
         controller: 'PhoneDetailCtrl'
       }).
+      when('/checkout', {
+          templateUrl: 'partials/checkout.html',
+          controller: 'CheckoutCtrl'
+        }).
       otherwise({
         redirectTo: '/phones'
       });
