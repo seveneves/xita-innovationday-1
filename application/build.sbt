@@ -34,7 +34,7 @@ unmanagedResourceDirectories in Compile <++= baseDirectory { base =>
 }
 
 
-mainClass := Some("org.up.pi.Main")
+mainClass := Some("com.example.Boot")
 
 resolvers ++= Seq("Sonatype Releases"   at "http://oss.sonatype.org/content/repositories/releases",
                   "Typesafe Repository" at "http://repo.typesafe.com/typesafe/releases/",
@@ -54,12 +54,13 @@ libraryDependencies ++= {
     "io.spray"                %   "spray-client"           % sprayVersion,
     "io.spray"                %   "spray-routing"          % sprayVersion,
     "io.spray"                %%  "spray-json"             % "1.2.5",
+    "org.json4s" 	      %%  "json4s-native" 	   % "3.2.9",
     "me.lessis"               %%  "base64"                 % "0.1.0",
     "com.github.nscala-time"  %%  "nscala-time"            % "0.4.2",
     "ch.qos.logback"          %   "logback-classic"        % "1.0.12",
     "org.apache.commons"      %   "commons-email"          % "1.2",
-    "joda-time" 			  %   "joda-time" 			   % "2.0",   
-	"org.joda" 				  %   "joda-convert" 		   % "1.1",
+    "joda-time" 	      %   "joda-time" 	           % "2.0",   
+    "org.joda"  	      %   "joda-convert"           % "1.1",
     "junit"                   %   "junit"                  % "4.7" % "test",
     "com.typesafe.akka"       %%  "akka-testkit"           % akkaVersion    % "test",
     "io.spray"                %   "spray-testkit"          % sprayVersion   % "test",
