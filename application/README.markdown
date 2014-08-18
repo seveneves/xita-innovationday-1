@@ -1,7 +1,7 @@
 # _Xita Innovation day application_ 
 
 ## Application
-The application is based on the 'Xebia-Stack" consisting of: 
+The application is a simple webshop that is based on the 'Xebia-Stack" consisting of: 
 - Akka
 - Spray
 - AngularJS
