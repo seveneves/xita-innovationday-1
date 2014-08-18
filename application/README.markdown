@@ -1,21 +1,42 @@
-## _"AngularJS - Spray - Twitter Bootstrap"_ Project Template
+## _"Xita Innovation day application (AngularJS/Twitter Bootstrap - Spray - Akka"_ 
 
-A template to start a project using Scala, Spray, AngularJS and Twitter Bootstrap (v3).
-The provided Bootstrapt template is 'Jumbotron-Narrow'. Start changing the GUI using AngularJS.
-Implement your REST API in the Api trait.
+# Build and Run
+- Run ```./sbt.sh run``` to run the server locally. 
+- Open a browser using the following url: http://localhost:8080/ 
+- There is a nice user interface that let's you call all endpoints of the REST interface
 
-# Testing JSON with Curl
-*Note: This testing does not replace unit or integration testing!*
-To test sending some JSON to your Rest API use:
-    'curl -d '<some json>' -H "Content-Type: application/json" http://localhost:9000/<api-url>'
+# Load source code in IDE
+_Eclipse_
+- Download Eclipse version Kepler (4.3) for Scala version *2.10.x*: http://scala-ide.org/download/sdk.html
+- Or install the scala plugin for version *2.10.x*: http://scala-ide.org/download/current.html
+- Run ```./sbt.sh eclipse``` to generate eclipse files and import project
 
-# Run
-Use 'sbt run' to run the server locally. 
+_Idea_
+- Install Scala plugin
+- Install sbt plugin
+- Import project (Generation of idea files is not necessary)
 
-# Run on Heroku
-Use sbt-start-script plugin to create a 'start' script in the target folder.
-    Run 'sbt clean compile stage' to create a script script.
+# Test REST API manually 
+_Note:_ Since it's a shopping cart the REST API is session-based. The name of the session cookie is *session-id*.
 
-Add a Procfile in the project directory and try to run the project using 'foreman'.
-If it works, the project can be uploaded to Heroku. See Heroku-Scala on Heroku site.
-The 'system.properties' file tells Heroku which Java version to use.
+- Add an item to the shopping cart:
+```
+curl -b session-id=12121212 -d '{"itemId":"dell-venue"}' -H "Content-Type: application/json"  http:localhost:8080/cart
+```
+
+- Retrieve shopping cart contents:
+```
+curl -b session-id=12121212 http://localhost:8080/cart
+```
+
+- Remove items from the shopping cart:
+```
+curl -b session-id=12121212 -X "DELETE" http://localhost:8080/cart?itemId=dell-venue
+```
+
+- Place order
+```
+curl -b session-id=12121212 -X "PUT" http://localhost:8080/order
+```
+
+
