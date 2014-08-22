@@ -8,7 +8,7 @@ import spray.can.Http.Bind
 trait WebApp extends App {
 
   val productRepo = ProductRepo.apply()
-
+ 
   implicit val system = ActorSystem("shopping-cart")
 
   val cartHandlerProps = CartManagerActor.props(PersistentCartActor.props(productRepo))

@@ -25,10 +25,8 @@ object ECommerceActor {
 // we want to be able to test it independently, without having to spin up an actor
 class ECommerceActor(val cartHandlerProps: Props) extends Actor with ECommerceRoute {
 
-  val actorRefFactory = context
-  
-  override val cartHandler = actorRefFactory.actorOf(cartHandlerProps, "cart-manager")
-
+  def actorRefFactory = context
+  override val cartHandler = context.actorOf(cartHandlerProps, "cart-manager")
   def receive = runRoute(myRoute)
 }
 

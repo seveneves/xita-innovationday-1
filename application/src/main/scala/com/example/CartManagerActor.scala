@@ -4,7 +4,7 @@ import akka.actor.{ ActorLogging, Props, Actor }
 import akka.contrib.pattern.ShardRegion.Passivate
 
 object CartManagerActor {
-  def props(cartProps: Props) = Props[CartManagerActor](new CartManagerActor(cartProps))
+  def props(cartProps: Props) = Props(new CartManagerActor(cartProps))
 
 }
 
