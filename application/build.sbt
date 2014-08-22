@@ -44,8 +44,8 @@ resolvers ++= Seq("Sonatype Releases"   at "http://oss.sonatype.org/content/repo
                   "Base64 Repo"         at "http://dl.bintray.com/content/softprops/maven")
 
 libraryDependencies ++= {
-  val akkaVersion  = "2.2.3"
-  val sprayVersion = "1.2.0"
+  val akkaVersion  = "2.3.5"
+  val sprayVersion = "1.3.1"
   Seq(
     "com.typesafe.akka"       %%  "akka-actor"             % akkaVersion,
     "com.typesafe.akka"       %%  "akka-slf4j"             % akkaVersion,
