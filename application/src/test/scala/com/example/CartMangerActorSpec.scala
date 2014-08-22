@@ -1,6 +1,7 @@
 package com.example
 
 import akka.actor._
+import akka.contrib.pattern.ShardRegion.Passivate
 import com.example.TestSupport.AkkaTestkitContext
 import org.junit.runner.RunWith
 import org.specs2.mutable.Specification
@@ -38,6 +39,23 @@ class CartMangerActorSpec extends Specification {
 
       val ids = Set(expectMsgClass(classOf[ActorIdentity]), expectMsgClass(classOf[ActorIdentity])).map(_.ref.map(_.path.name))
       ids must be equalTo Set(Some("aaaaa"), Some("bbbbb"))
+
+    }
+
+    "reply with passivation content back to sender" in new AkkaTestkitContext() {
+
+
+      val cartActorStubProps = Props(new Actor {
+        override def receive: Receive = {
+          case m: String => sender ! s"Echoing: $m"
+        }
+      })
+
+      val cartManager = system.actorOf(Props(new CartManagerActor(cartActorStubProps)))
+
+      cartManager ! Passivate("Content")
+      expectMsg("Content")
+
 
     }
   }
