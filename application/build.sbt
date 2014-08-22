@@ -49,6 +49,7 @@ libraryDependencies ++= {
   Seq(
     "com.typesafe.akka"       %%  "akka-actor"             % akkaVersion,
     "com.typesafe.akka"       %%  "akka-slf4j"             % akkaVersion,
+    "com.typesafe.akka" 	  %% "akka-persistence-experimental" % akkaVersion,
     "io.spray"                %   "spray-caching"          % sprayVersion,
     "io.spray"                %   "spray-can"              % sprayVersion,
     "io.spray"                %   "spray-client"           % sprayVersion,
