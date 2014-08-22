@@ -38,7 +38,7 @@ class PersistentShoppingCartActor(productRepo: ProductRepo) extends PersistentAc
       log.info(s"recovery completed; setting receive timeout")
       context.setReceiveTimeout(receiveTimeout)
     case SnapshotOffer(_, shoppingCartState: Seq[ShoppingCartItem]) =>
-      log.info(s"recovery: got snapshot $shoppingCartState")
+      log.info(s"recovery: got snapshot: ${shoppingCartState.size} items")
       state = shoppingCartState
   }
 
