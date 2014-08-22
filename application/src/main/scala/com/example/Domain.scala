@@ -48,6 +48,15 @@ object Device extends DefaultJsonProtocol {
 //order domain
 sealed trait OrderState
 
-case class OrderProcessed(orderId:String) extends OrderState
+case class OrderProcessed(orderId: String) extends OrderState
 
 case object OrderProcessingFailed extends OrderState
+
+object EventDomain {
+  sealed trait Event
+  case class ItemAddedEvent(itemId: String) extends Event
+  case class ItemRemovedEvent(itemId: String) extends Event
+  case object CartCheckedoutEvent extends Event
+
+}
+//event domain
