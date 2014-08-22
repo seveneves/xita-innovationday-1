@@ -1,4 +1,4 @@
-package com.example
+package akka.testkit
 
 import akka.actor.ActorSystem
 import akka.testkit.{ ImplicitSender, TestKit }
@@ -10,7 +10,7 @@ object TestSupport {
 
   /** Simple specs2 bridge for Akka TestKit. */
   abstract class AkkaTestkitContext(actorSystem: ActorSystem) extends TestKit(actorSystem) with ImplicitSender with After {
-    private[example] var owner = false
+    private[testkit] var owner = false
 
     def this() = {
       this(ActorSystem())

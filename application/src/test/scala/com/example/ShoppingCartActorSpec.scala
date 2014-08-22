@@ -4,7 +4,8 @@ import spray.testkit.Specs2RouteTest
 import org.specs2.mutable.Specification
 import akka.actor.actorRef2Scala
 import akka.actor.Props
-import TestSupport._
+import akka.testkit.TestSupport._
+import akka.testkit.TestSupport
 class ShoppingCartActorSpec extends Specification
   with Specs2RouteTest {
 

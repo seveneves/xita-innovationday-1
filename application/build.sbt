@@ -67,7 +67,8 @@ libraryDependencies ++= {
     "junit"                   %   "junit"                  % "4.7" % "test",
     "com.typesafe.akka"       %%  "akka-testkit"           % akkaVersion    % "test",
     "io.spray"                %   "spray-testkit"          % sprayVersion   % "test",
-    "org.specs2"              %%  "specs2"                 % "2.1.1"        % "test"
+    "org.specs2"              %%  "specs2"                 % "2.1.1"        % "test",
+    "commons-io"              %  "commons-io"                     % "2.4"          % "test"
 )
 }
 

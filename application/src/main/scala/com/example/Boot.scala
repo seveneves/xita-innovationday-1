@@ -10,7 +10,7 @@ trait WebApp extends App {
 
   implicit val system = ActorSystem("shopping-cart")
 
-  val cartManager = system.actorOf(Props(new CartManagerActor(Props(new PersistentShoppingCartActor(productRepo)))), "cart-manager")
+  val cartManager = system.actorOf(CartManagerActor.props(PersistentShoppingCartActor.props(productRepo)), "cart-manager")
   // create and start our service actor
   val service = system.actorOf(Props(new ECommerceActor(cartManager)), "e-commerce-route")
 

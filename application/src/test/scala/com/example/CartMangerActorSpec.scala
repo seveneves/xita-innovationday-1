@@ -2,7 +2,7 @@ package com.example
 
 import akka.actor._
 import akka.contrib.pattern.ShardRegion.Passivate
-import com.example.TestSupport.AkkaTestkitContext
+import akka.testkit.TestSupport.AkkaTestkitContext
 import org.junit.runner.RunWith
 import org.specs2.mutable.Specification
 import org.specs2.runner.JUnitRunner
@@ -17,7 +17,7 @@ class CartMangerActorSpec extends Specification {
         override def receive: Receive = {
           case m: String => sender ! s"Echoing: $m"
         }
-      })
+      }) 
 
       val cartManager = system.actorOf(Props(new CartManagerActor(cartActorStubProps)))
 
