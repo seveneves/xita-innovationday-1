@@ -14,40 +14,22 @@ public class CartTest {
     @Before
     public void setUp() throws Exception {
         fixture = Fixtures.newGivenWhenThenFixture(Cart.class);
-        CreateCartCommandHandler createCartCommandHandler = new CreateCartCommandHandler();
+        AddItemCommandHandler createCartCommandHandler = new AddItemCommandHandler();
         createCartCommandHandler.setRepository(fixture.getRepository());
         fixture.registerAnnotatedCommandHandler(createCartCommandHandler);
 
-        /*
-         * // we'll store Events on the FileSystem, in the "events/" folder EventStore eventStore = new
-         * FileSystemEventStore(new SimpleEventFileResolver(new File("./events")));
-         * 
-         * // a Simple Event Bus will do EventBus eventBus = new SimpleEventBus();
-         * 
-         * // we need to configure the repository EventSourcingRepository repository = new
-         * EventSourcingRepository(Cart.class, eventStore); repository.setEventBus(eventBus);
-         * 
-         * fixture.registerRepository(repository);
-         */}
+    }
 
     @Test
-    public void createCart() {
+    public void addItemToNewCart() {
 
         fixture.given()
-            .when(new CreateCartCommand(CART_ID))
-            .expectEvents(new CartCreatedEvent(CART_ID));
+            .when(new AddItemCommand(CART_ID, ITEM1))
+            .expectEvents(new CartCreatedEvent(CART_ID), new ItemAddedEvent(CART_ID, ITEM1));
     }
 
     @Test
-    public void createAlreadyExistingCart() {
-
-        fixture.given(new CartCreatedEvent(CART_ID))
-            .when(new CreateCartCommand(CART_ID))
-            .expectEvents();
-    }
-
-    @Test
-    public void addItemToCart() {
+    public void addItemToExistingCart() {
 
         fixture.given(new CartCreatedEvent(CART_ID))
             .when(new AddItemCommand(CART_ID, ITEM1))

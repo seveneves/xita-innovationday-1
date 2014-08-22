@@ -5,8 +5,8 @@ import org.axonframework.repository.Repository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class CreateCartCommandHandler {
-    private final static Logger logger = LoggerFactory.getLogger(CreateCartCommandHandler.class);
+public class AddItemCommandHandler {
+    private final static Logger logger = LoggerFactory.getLogger(AddItemCommandHandler.class);
 
     private Repository<Cart> repository;
 
@@ -15,13 +15,14 @@ public class CreateCartCommandHandler {
     }
 
     @CommandHandler
-    public void handle(CreateCartCommand command) {
+    public void handle(AddItemCommand command) {
         logger.warn("received CreateCart {}", command.getCartId());
         try {
-            repository.load(command.getCartId());
+            Cart cart = repository.load(command.getCartId());
             logger.warn("cart {} already exists", command.getCartId());
+            cart.handle(command);
         } catch (Exception e) {
-            Cart cart = new Cart(command.getCartId());
+            Cart cart = new Cart(command);
             repository.add(cart);
             logger.warn("added cart {} to repository", command.getCartId());
         }
