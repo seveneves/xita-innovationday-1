@@ -1,5 +1,7 @@
 package com.example
 
+import java.util.UUID
+
 import spray.json.DefaultJsonProtocol
 
 case class Android(os: String, ui: String)
@@ -57,6 +59,6 @@ object EventDomain {
   sealed trait Event
   case class ItemAddedEvent(itemId: String) extends Event
   case class ItemRemovedEvent(itemId: String) extends Event
-  case object CartCheckedoutEvent extends Event
+  case class CartCheckedoutEvent(orderId: UUID) extends Event
 
 }

@@ -20,12 +20,19 @@ class PersistentShoppingCartActor(productRepo: ProductRepo) extends PersistentAc
         state = state.filterNot(_.item.id == itemId) :+ updatedItem
       case ItemRemovedEvent(itemId) => 
         state = state.filterNot(_.item.id == itemId)
-      case CartCheckedoutEvent => 
+      case CartCheckedoutEvent(_) =>
         state = Seq[ShoppingCartItem]()
     } 
   }
 
-  val receiveRecover: Receive = ???
+  override def postStop(): Unit = {
+    saveSnapshot(state)
+  }
+
+  val receiveRecover: Receive = {
+    case e:Event => updateState(e)
+    case SnapshotOffer(_, shoppingCartState: Seq[ShoppingCartItem]) => state = shoppingCartState
+  }
 
   val receiveCommand: Receive = {
     case AddToCartRequest(itemId) => {
@@ -52,9 +59,11 @@ class PersistentShoppingCartActor(productRepo: ProductRepo) extends PersistentAc
         sender ! OrderProcessingFailed
       } else {
         //call order services to order
-        persist(CartCheckedoutEvent) { evt =>
+        val orderId: UUID = UUID.randomUUID()
+        persist(CartCheckedoutEvent(orderId)) { evt =>
           updateState(evt)
-          sender ! OrderProcessed(UUID.randomUUID().toString)
+          saveSnapshot(state)
+          sender ! OrderProcessed(orderId.toString)
         }
       }
     }
