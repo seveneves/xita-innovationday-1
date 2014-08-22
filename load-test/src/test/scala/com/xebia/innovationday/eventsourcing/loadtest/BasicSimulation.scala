@@ -15,8 +15,9 @@ class BasicSimulation extends Simulation {
 		.inferHtmlResources()
 		.acceptEncodingHeader("gzip, deflate")
 		.acceptLanguageHeader("en-US,en;q=0.5")
-		.connection("keep-alive")
+		//.connection("keep-alive")
 		.userAgentHeader("Gatling")
+    .maxConnectionsPerHost(1) // limit number of connections, so that the generator can survive...
 
   private object Headers {
     val html = Map(
@@ -95,8 +96,8 @@ class BasicSimulation extends Simulation {
 	setUp(
     scn.inject(
 //      atOnceUsers(1)
-      rampUsers(10000) over (10 seconds),
-      constantUsersPerSec(10000) during (1 minutes)
+      rampUsers(100) over (10 seconds),
+      constantUsersPerSec(100) during (1 minutes)
     )
   ).protocols(httpProtocol)
 }
