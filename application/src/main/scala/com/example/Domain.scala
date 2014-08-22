@@ -52,6 +52,7 @@ case class OrderProcessed(orderId: String) extends OrderState
 
 case object OrderProcessingFailed extends OrderState
 
+//event domain
 object EventDomain {
   sealed trait Event
   case class ItemAddedEvent(itemId: String) extends Event
@@ -59,4 +60,3 @@ object EventDomain {
   case object CartCheckedoutEvent extends Event
 
 }
-//event domain

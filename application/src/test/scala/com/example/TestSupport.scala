@@ -1,4 +1,4 @@
-package org.up.pi
+package com.example
 
 import akka.actor.ActorSystem
 import akka.testkit.{ImplicitSender, TestKit}

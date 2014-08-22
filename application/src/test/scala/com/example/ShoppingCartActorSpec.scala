@@ -2,10 +2,9 @@ package com.example
 
 import spray.testkit.Specs2RouteTest
 import org.specs2.mutable.Specification
-import org.up.pi.TestSupport._
 import akka.actor.actorRef2Scala
 import akka.actor.Props
-
+import TestSupport._
 class ShoppingCartActorSpec extends Specification
   with Specs2RouteTest {
 
@@ -15,7 +14,7 @@ class ShoppingCartActorSpec extends Specification
       val reverseActor = system.actorOf(Props(new ShoppingCartActor(productRepo)), "cart-actor")
       import akka.pattern.ask
 
-      reverseActor ! RequestContext("sessionId-1", GetCartRequest())
+      reverseActor ! RequestContext("sessionId-1", GetCartRequest)
 
       expectMsg(Seq())
 
@@ -28,7 +27,7 @@ class ShoppingCartActorSpec extends Specification
 
       expectMsg(Seq(ShoppingCartItem(product, 1)))
 
-      reverseActor ! RequestContext("sessionId-2", OrderRequest())
+      reverseActor ! RequestContext("sessionId-2", OrderRequest)
       expectMsgClass(classOf[OrderProcessed])
     }
   }

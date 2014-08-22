@@ -15,16 +15,16 @@ class PersistentShoppingCartActor(productRepo: ProductRepo) extends PersistentAc
   val receiveRecover: Receive = ???
 
   val receiveCommand: Receive = {
-    case RequestContext(sessionId, AddToCartRequest(itemId)) => {
+    case AddToCartRequest(itemId) => {
       ???
     }
-    case RequestContext(sessionId, RemoveFromCartRequest(itemId)) => {
+    case RemoveFromCartRequest(itemId) => {
       ???
     }
-    case RequestContext(sessionId, GetCartRequest()) => {
+    case GetCartRequest => {
       ???
     }
-    case RequestContext(sessionId, OrderRequest()) => {
+    case OrderRequest => {
       ???
     }
 

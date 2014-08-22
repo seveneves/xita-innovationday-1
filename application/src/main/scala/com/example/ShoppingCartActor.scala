@@ -24,12 +24,12 @@ class ShoppingCartActor(productRepo: ProductRepo) extends Actor with ActorLoggin
         sender ! items
       }
     }
-    case RequestContext(sessionId, GetCartRequest()) => {
+    case RequestContext(sessionId, GetCartRequest) => {
       val items = getCartItems(sessionId)
       log.info(s"$sessionId: get items from cart: ${items.map(_.item.name).mkString}")
       sender ! items
     }
-    case RequestContext(sessionId, OrderRequest()) => {
+    case RequestContext(sessionId, OrderRequest) => {
       val orderState = processOrder(sessionId)
       sender ! orderState
     }

@@ -76,7 +76,7 @@ trait Api extends HttpService {
             }
           } ~
           get {
-            handleCartRequest(RequestContext(sessionId, GetCartRequest()))
+            handleCartRequest(RequestContext(sessionId, GetCartRequest))
           }
       }
     } ~ path("order") {
@@ -95,7 +95,7 @@ trait Api extends HttpService {
   }
 
   private def handleOrderRequest(sessionId: String) = {
-    val processingStateFuture = cartHandler.ask(RequestContext(sessionId, OrderRequest()))
+    val processingStateFuture = cartHandler.ask(RequestContext(sessionId, OrderRequest))
     onComplete(processingStateFuture) {
       case Success(resp) => resp match {
         case ok @ OrderProcessed(orderId) => complete(OrderStateResponse(ok.getClass.getSimpleName(), Some(orderId)))
