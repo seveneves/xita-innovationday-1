@@ -1,8 +1,7 @@
 package com.example
 
 import akka.actor.{PoisonPill, ReceiveTimeout, ActorLogging}
-import akka.contrib.pattern.ShardRegion.Passivate
-import akka.persistence.{RecoveryCompleted, PersistentActor, SnapshotOffer}
+import akka.persistence.{SaveSnapshotSuccess, RecoveryCompleted, PersistentActor, SnapshotOffer}
 import EventDomain._
 import java.util.UUID
 
@@ -30,10 +29,6 @@ class PersistentShoppingCartActor(productRepo: ProductRepo) extends PersistentAc
     }
   }
 
-  override def postStop(): Unit = {
-    log.info("Saving snapshot...")
-    saveSnapshot(state)
-  }
   val receiveRecover: Receive = {
     case e:Event =>
       log.info(s"recovery: got $e")
@@ -46,8 +41,16 @@ class PersistentShoppingCartActor(productRepo: ProductRepo) extends PersistentAc
       state = shoppingCartState
   }
 
+  val dying : Receive = {
+    case SaveSnapshotAndDie => saveSnapshot(state)
+    case SaveSnapshotSuccess => self ! PoisonPill
+  }
+
   val receiveCommand: Receive = {
-    case ReceiveTimeout => context.parent ! Passivate(PoisonPill)
+    case ReceiveTimeout => {
+      context.become(dying)
+      self ! SaveSnapshotAndDie
+    }
 
     case AddToCartRequest(itemId) => {
       doWithItem(itemId) { item =>

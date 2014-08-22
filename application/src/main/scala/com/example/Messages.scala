@@ -30,3 +30,6 @@ object OrderStateResponse extends DefaultJsonProtocol {
 }
 
 case class RequestContext[T](sessionId:String, t:T)
+
+
+case object SaveSnapshotAndDie
