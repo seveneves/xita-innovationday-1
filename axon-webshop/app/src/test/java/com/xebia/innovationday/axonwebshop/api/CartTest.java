@@ -3,6 +3,7 @@ package com.xebia.innovationday.axonwebshop.api;
 import org.axonframework.test.FixtureConfiguration;
 import org.axonframework.test.Fixtures;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 
 public class CartTest {
@@ -17,11 +18,20 @@ public class CartTest {
     }
 
     @Test
+    @Ignore
     public void addItemOnNewCart() {
 
         fixture.given()
             .when(new AddItemCommand(NON_EXISTENT_ID, ITEM1))
             .expectEvents(new CartCreatedEvent(NON_EXISTENT_ID), new ItemAddedEvent(NON_EXISTENT_ID, ITEM1));
+    }
+
+    @Test
+    public void createCart() {
+
+        fixture.given()
+            .when(new CreateCardCommand(NON_EXISTENT_ID))
+            .expectEvents(new CartCreatedEvent(NON_EXISTENT_ID));
     }
 
 }
