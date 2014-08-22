@@ -50,6 +50,8 @@ libraryDependencies ++= {
     "com.typesafe.akka"       %%  "akka-actor"             % akkaVersion,
     "com.typesafe.akka"       %%  "akka-slf4j"             % akkaVersion,
     "com.typesafe.akka" 	  %% "akka-persistence-experimental" % akkaVersion,
+    "com.typesafe.akka"       %%  "akka-cluster"             % akkaVersion,
+    "com.typesafe.akka"       %%  "akka-contrib"             % akkaVersion,
     "io.spray"                %   "spray-caching"          % sprayVersion,
     "io.spray"                %   "spray-can"              % sprayVersion,
     "io.spray"                %   "spray-client"           % sprayVersion,
