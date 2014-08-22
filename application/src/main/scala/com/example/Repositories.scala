@@ -4,6 +4,7 @@ import spray.json.JsonParser
 import scala.io.Source
 import java.net.URI
 import CartMessages._
+import ProductDomain._
 
 /**
  * Product repository trait

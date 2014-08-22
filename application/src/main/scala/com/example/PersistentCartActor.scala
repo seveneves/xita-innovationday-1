@@ -8,6 +8,7 @@ import akka.persistence._
 import scala.concurrent.duration._
 import CartMessages._
 import OrderMessages._
+import ProductDomain._
 object PersistentCartActor {
 
   def props(productRepo: ProductRepo) = Props[PersistentCartActor](new PersistentCartActor(productRepo))

@@ -9,6 +9,7 @@ import akka.testkit.TestSupport
 import RequestMessages._
 import CartMessages._
 import OrderMessages._
+import ProductDomain._
 class SimpleCartActorSpec extends Specification
   with Specs2RouteTest {
 

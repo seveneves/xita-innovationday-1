@@ -17,7 +17,7 @@ import akka.testkit.AkkaSpec
 import RequestMessages._
 import CartMessages._
 import OrderMessages._
-
+import ProductDomain._
 trait DeactivatedTimeConversions extends org.specs2.time.TimeConversions {
   override def intToRichLong(v: Int) = super.intToRichLong(v)
 }

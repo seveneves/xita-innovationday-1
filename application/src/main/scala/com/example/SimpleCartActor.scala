@@ -6,6 +6,7 @@ import java.util.UUID
 import CartMessages._
 import RequestMessages._
 import OrderMessages._
+import ProductDomain._
 /**
  * TODO: transform this actor into a stateful actor making use of Event Sourcing to persist the
  * cart state
