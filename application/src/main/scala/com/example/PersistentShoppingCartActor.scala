@@ -1,13 +1,18 @@
 package com.example
 
-import akka.actor.ActorLogging
-import akka.persistence.PersistentActor
-import akka.persistence.SnapshotOffer
+import akka.actor.{PoisonPill, ReceiveTimeout, ActorLogging}
+import akka.contrib.pattern.ShardRegion.Passivate
+import akka.persistence.{RecoveryCompleted, PersistentActor, SnapshotOffer}
 import EventDomain._
 import java.util.UUID
+
+import scala.concurrent.duration._
+
 class PersistentShoppingCartActor(productRepo: ProductRepo) extends PersistentActor with ActorLogging {
 
   override def persistenceId = "cart-id-1"
+
+  val receiveTimeout: FiniteDuration = 2 seconds
 
   var state = Seq[ShoppingCartItem]()
 
@@ -18,23 +23,32 @@ class PersistentShoppingCartActor(productRepo: ProductRepo) extends PersistentAc
           .map(item => item.copy(count = (item.count + 1)))
           .getOrElse(ShoppingCartItem(productRepo.productMap(itemId)))
         state = state.filterNot(_.item.id == itemId) :+ updatedItem
-      case ItemRemovedEvent(itemId) => 
+      case ItemRemovedEvent(itemId) =>
         state = state.filterNot(_.item.id == itemId)
       case CartCheckedoutEvent(_) =>
         state = Seq[ShoppingCartItem]()
-    } 
+    }
   }
 
   override def postStop(): Unit = {
+    log.info("Saving snapshot...")
     saveSnapshot(state)
   }
-
   val receiveRecover: Receive = {
-    case e:Event => updateState(e)
-    case SnapshotOffer(_, shoppingCartState: Seq[ShoppingCartItem]) => state = shoppingCartState
+    case e:Event =>
+      log.info(s"recovery: got $e")
+      updateState(e)
+    case t:RecoveryCompleted =>
+      log.info(s"recovery completed; setting receive timeout")
+      context.setReceiveTimeout(receiveTimeout)
+    case SnapshotOffer(_, shoppingCartState: Seq[ShoppingCartItem]) =>
+      log.info(s"recovery: got snapshot $shoppingCartState")
+      state = shoppingCartState
   }
 
   val receiveCommand: Receive = {
+    case ReceiveTimeout => context.parent ! Passivate(PoisonPill)
+
     case AddToCartRequest(itemId) => {
       doWithItem(itemId) { item =>
         persist(ItemAddedEvent(itemId)) { evt =>
