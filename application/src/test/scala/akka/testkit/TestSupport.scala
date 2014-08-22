@@ -1,7 +1,6 @@
 package akka.testkit
 
 import akka.actor.ActorSystem
-import akka.testkit.{ ImplicitSender, TestKit }
 import org.specs2.mutable.After
 import com.typesafe.config.ConfigFactory
 import java.io.File

@@ -10,24 +10,22 @@ import spray.json._
 import DefaultJsonProtocol._
 import java.io.File
 import scala.collection.JavaConversions._
+import RequestMessages._
+import CartMessages._
+import OrderMessages._
 class DomainMarshallerSpec extends Specification {
-  "Domain" should {
-     "be deserializable" in {
-      try {
-        ProductRepo.apply()
-      } catch {
-        case e: Exception => failure("unmarshalling must not throw an exception" +  e.getMessage())
-      }
-      true must beTrue
+  "Product Repo" should {
+    "be initialize correctly" in {
+      val repo = ProductRepo.apply()
+      repo.products.size must be_>(1)
     }
-       "be serializable" in {
-      try {
-        val repo = ProductRepo.apply()
-        val res = Seq(ShoppingCartItem(repo.products.head, 1)).toJson
-      } catch {
-        case e: Exception => failure("marshalling must not throw an exception" +  e.getMessage())
-      }
-      true must beTrue
+  }
+  "Cart items" should {
+    "be serializable" in {
+      val repo = ProductRepo.apply()
+      val jsonAst = Seq(ShoppingCartItem(repo.products.head, 1)).toJson
+      val cart = jsonAst.convertTo[Seq[ShoppingCartItem]]
+      cart.size ==== 1
     }
   }
 }

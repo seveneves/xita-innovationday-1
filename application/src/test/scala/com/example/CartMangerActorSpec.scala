@@ -6,7 +6,7 @@ import akka.testkit.TestSupport.AkkaTestkitContext
 import org.junit.runner.RunWith
 import org.specs2.mutable.Specification
 import org.specs2.runner.JUnitRunner
-
+import RequestMessages._
 @RunWith(classOf[JUnitRunner])
 class CartMangerActorSpec extends Specification {
 

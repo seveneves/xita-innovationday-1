@@ -1,6 +1,7 @@
 package com.example
 
-import akka.actor.{ActorSystem, Props}
+import akka.actor.ActorSystem
+import akka.actor.Props
 import akka.io.IO
 import spray.can.Http
 import spray.can.Http.Bind
@@ -10,9 +11,9 @@ trait WebApp extends App {
 
   implicit val system = ActorSystem("shopping-cart")
 
-  val cartManager = system.actorOf(CartManagerActor.props(PersistentShoppingCartActor.props(productRepo)), "cart-manager")
+  val cartHandlerProps = CartManagerActor.props(PersistentCartActor.props(productRepo))
   // create and start our service actor
-  val service = system.actorOf(Props(new ECommerceActor(cartManager)), "e-commerce-route")
+  val service = system.actorOf(ECommerceActor.props(cartHandlerProps), "e-commerce-route")
 
   // To run project on Heroku, get PORT from environment
   val httpHost = "0.0.0.0"

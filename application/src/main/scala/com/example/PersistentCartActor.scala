@@ -6,13 +6,17 @@ import akka.actor.{ ActorLogging, PoisonPill, ReceiveTimeout, Props }
 import akka.persistence._
 
 import scala.concurrent.duration._
+import CartMessages._
+import OrderMessages._
+object PersistentCartActor {
 
-object PersistentShoppingCartActor {
-  def props(productRepo: ProductRepo) = Props[PersistentShoppingCartActor](new PersistentShoppingCartActor(productRepo))
+  def props(productRepo: ProductRepo) = Props[PersistentCartActor](new PersistentCartActor(productRepo))
+
   sealed trait Event
   case class ItemAddedEvent(itemId: String) extends Event
   case class ItemRemovedEvent(itemId: String) extends Event
   case class CartCheckedoutEvent(orderId: UUID) extends Event
+  case object SaveSnapshotAndDie
 
   case class CartItems(items: Seq[ShoppingCartItem] = Seq()) {
     def update(item: Device) = {
@@ -25,32 +29,30 @@ object PersistentShoppingCartActor {
       copy(items = items.filterNot(_.item.id == itemId))
     }
 
-    def clear() = {
-      copy(items = Seq())
-    }
+    def clear() = copy(items = Seq())
     def size = items.size
     def isEmpty = items.isEmpty
   }
 
 }
 
-class PersistentShoppingCartActor(productRepo: ProductRepo) extends PersistentActor with ActorLogging {
-  import PersistentShoppingCartActor._
+class PersistentCartActor(productRepo: ProductRepo) extends PersistentActor with ActorLogging {
+  import PersistentCartActor._
 
   override def persistenceId = context.self.path.name
 
   val receiveTimeout: FiniteDuration = 20 seconds
 
-  var cartItems = CartItems()
+  var cart = CartItems()
 
   def updateState(event: Event): Unit = {
     event match {
       case ItemAddedEvent(itemId) =>
-        cartItems = cartItems.update(productRepo.productMap(itemId))
+        cart = cart.update(productRepo.productMap(itemId))
       case ItemRemovedEvent(itemId) =>
-        cartItems = cartItems.remove(itemId)
+        cart = cart.remove(itemId)
       case CartCheckedoutEvent(_) =>
-        cartItems = cartItems.clear()
+        cart = cart.clear()
     }
   }
 
@@ -63,11 +65,11 @@ class PersistentShoppingCartActor(productRepo: ProductRepo) extends PersistentAc
       context.setReceiveTimeout(receiveTimeout)
     case SnapshotOffer(_, shoppingCartState: CartItems) =>
       log.info(s"recovery: got snapshot: ${shoppingCartState.size} items")
-      cartItems = shoppingCartState
+      cart = shoppingCartState
   }
 
   val dying: Receive = {
-    case SaveSnapshotAndDie => { log.info("saving snapshot"); saveSnapshot(cartItems); log.info("saved snapshot") }
+    case SaveSnapshotAndDie => { log.info("saving snapshot"); saveSnapshot(cart); log.info("saved snapshot") }
     case SaveSnapshotSuccess(_) => { log.info("farewell cruel world!"); self ! PoisonPill }
     case SaveSnapshotFailure(_, _) => { log.info("Could not save snapshot!"); self ! PoisonPill }
   }
@@ -83,7 +85,7 @@ class PersistentShoppingCartActor(productRepo: ProductRepo) extends PersistentAc
       doWithItem(itemId) { item =>
         persist(ItemAddedEvent(itemId)) { evt =>
           updateState(evt)
-          sender ! cartItems
+          sender ! cart.items
         }
       }
     }
@@ -91,22 +93,22 @@ class PersistentShoppingCartActor(productRepo: ProductRepo) extends PersistentAc
       doWithItem(itemId) { item =>
         persist(ItemRemovedEvent(itemId)) { evt =>
           updateState(evt)
-          sender ! cartItems
+          sender ! cart.items
         }
       }
     }
     case GetCartRequest => {
-      sender ! cartItems
+      sender ! cart.items
     }
     case OrderRequest => {
-      if (cartItems.isEmpty) {
+      if (cart.isEmpty) {
         sender ! OrderProcessingFailed
       } else {
         //call order services to order
         val orderId: UUID = UUID.randomUUID()
         persist(CartCheckedoutEvent(orderId)) { evt =>
           updateState(evt)
-          saveSnapshot(cartItems)
+          saveSnapshot(cart)
           sender ! OrderProcessed(orderId.toString)
         }
       }

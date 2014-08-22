@@ -13,6 +13,8 @@ import spray.http.HttpCookie
 import spray.http.HttpHeaders.Cookie
 import spray.httpx.SprayJsonSupport._
 import spray.routing._
+import CartMessages._
+import OrderMessages._
 @RunWith(classOf[JUnitRunner])
 class ECommerceRouteSpec extends Specification with Specs2RouteTest with ECommerceRoute {
 
@@ -23,12 +25,6 @@ class ECommerceRouteSpec extends Specification with Specs2RouteTest with ECommer
     probe.setAutoPilot {
       new TestActor.AutoPilot {
         def run(sender: ActorRef, msg: Any) = msg match {
-          //      case ListProjects =>
-          //        sender ! ListBuffer[Project]()
-          //        TestActor.KeepRunning
-          //      case AddProject(name, url) =>
-          //        sender ! "ok"
-          //        TestActor.NoAutoPilot
           case _ =>
             sender ! Seq(ShoppingCartItem(productRepo.products.head, 1))
             TestActor.KeepRunning
@@ -37,7 +33,7 @@ class ECommerceRouteSpec extends Specification with Specs2RouteTest with ECommer
     }
     probe.ref
   }
-  "MyService" should {
+  "ECommerce route" should {
 
     "leave GET requests to other paths unhandled" in {
       Get("/kermit") ~> myRoute ~> check {
@@ -62,13 +58,6 @@ class ECommerceRouteSpec extends Specification with Specs2RouteTest with ECommer
         responseAs[Seq[ShoppingCartItem]] === Seq(ShoppingCartItem(productRepo.products.head, 1))
       }
     }
-
-    //    "return a MethodNotAllowed error for PUT requests to the root path" in {
-    //      Put() ~> sealRoute(myRoute) ~> check {
-    //        status === MethodNotAllowed
-    //        responseAs[String] === "HTTP method not allowed, supported methods: GET"
-    //      }
-    //    }
   }
 
 }

@@ -3,16 +3,17 @@ import java.io.File
 import spray.json.JsonParser
 import scala.io.Source
 import java.net.URI
+import CartMessages._
 
 /**
  * Product repository trait
  */
-trait ProductRepo {
+trait ProductRepo extends Serializable {
   val products: Seq[Device]
   lazy val productMap: Map[String, Device] = products.map(p => p.id -> p).toMap
 }
 
-class ProductRepoImpl(val products: Seq[Device]) extends ProductRepo
+class ProductRepoImpl(val products: Seq[Device]) extends ProductRepo 
 
 /**
  * Loads products stored in static resources

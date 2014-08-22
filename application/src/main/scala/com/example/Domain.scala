@@ -47,11 +47,3 @@ object Device extends DefaultJsonProtocol {
   implicit val format = jsonFormat14(Device.apply)
 }
 
-//order domain
-sealed trait OrderState
-
-case class OrderProcessed(orderId: String) extends OrderState
-
-case object OrderProcessingFailed extends OrderState
-
-//event domain

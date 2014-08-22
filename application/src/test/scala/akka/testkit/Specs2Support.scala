@@ -1,4 +1,4 @@
-package akka.testkit
+package akka.testkit.specs2
 
 import org.specs2.specification.Fragments
 import org.specs2.specification.Step

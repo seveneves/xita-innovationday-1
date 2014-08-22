@@ -3,11 +3,14 @@ package com.example
 import akka.actor.ActorLogging
 import akka.actor.Actor
 import java.util.UUID
+import CartMessages._
+import RequestMessages._
+import OrderMessages._
 /**
  * TODO: transform this actor into a stateful actor making use of Event Sourcing to persist the
  * cart state
  */
-class ShoppingCartActor(productRepo: ProductRepo) extends Actor with ActorLogging {
+class SimpleCartActor(productRepo: ProductRepo) extends Actor with ActorLogging {
 
   log.info(s"Creating a new ShoppingCartActor")
   import SessionRepo._

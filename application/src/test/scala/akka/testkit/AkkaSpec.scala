@@ -4,21 +4,17 @@
  */
 package akka.testkit
 
-//import language.{ postfixOps, reflectiveCalls }
+import language.{ postfixOps, reflectiveCalls }
+
+import org.scalatest.{ WordSpecLike, BeforeAndAfterAll }
+import org.scalatest.Matchers
 import akka.actor.ActorSystem
 import akka.event.{ Logging, LoggingAdapter }
 import scala.concurrent.duration._
 import scala.concurrent.Future
 import com.typesafe.config.{ Config, ConfigFactory }
 import akka.dispatch.Dispatchers
-import akka.testkit.TestEvent._
-import org.specs2.mutable.Specification
-import org.specs2.specification.Step
-import org.specs2.matcher.Matchers
-import org.specs2.specification.Fragments
-import org.specs2.mutable.SpecificationLike
-
-
+import akka.testkit.TestEvent._ 
 
 object AkkaSpec {
   val testConf: Config = ConfigFactory.parseString("""
@@ -57,7 +53,7 @@ object AkkaSpec {
 }
 
 abstract class AkkaSpec(_system: ActorSystem)
-    extends TestKit(_system) with Matchers with BeforeAndAfterAll with WatchedByCoroner with DeactivatedTimeConversions{
+    extends TestKit(_system) with WordSpecLike with Matchers with BeforeAndAfterAll with WatchedByCoroner {
 
   def this(config: Config) = this(ActorSystem(AkkaSpec.getCallerName(getClass),
     ConfigFactory.load(config.withFallback(AkkaSpec.testConf))))
@@ -70,7 +66,7 @@ abstract class AkkaSpec(_system: ActorSystem)
 
   val log: LoggingAdapter = Logging(system, this.getClass)
 
-  //override val invokeBeforeAllAndAfterAllEvenIfNoTestsAreExpected = true
+  override val invokeBeforeAllAndAfterAllEvenIfNoTestsAreExpected = true
 
   final override def beforeAll {
     startCoroner
@@ -104,4 +100,3 @@ abstract class AkkaSpec(_system: ActorSystem)
     }
 
 }
-
