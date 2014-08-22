@@ -8,6 +8,8 @@ import java.util.UUID
  * cart state
  */
 class ShoppingCartActor(productRepo: ProductRepo) extends Actor with ActorLogging {
+
+  log.info(s"Creating a new ShoppingCartActor")
   import SessionRepo._
   override def receive: Receive = {
     case RequestContext(sessionId, AddToCartRequest(itemId)) => {
