@@ -3,7 +3,7 @@ package com.example
 import java.util.UUID
 
 import akka.actor.{ActorLogging, PoisonPill, ReceiveTimeout}
-import akka.persistence.{PersistentActor, RecoveryCompleted, SaveSnapshotSuccess, SnapshotOffer}
+import akka.persistence._
 import com.example.EventDomain._
 
 import scala.concurrent.duration._
@@ -38,17 +38,19 @@ class PersistentShoppingCartActor(productRepo: ProductRepo) extends PersistentAc
       log.info(s"recovery completed; setting receive timeout")
       context.setReceiveTimeout(receiveTimeout)
     case SnapshotOffer(_, shoppingCartState: Seq[ShoppingCartItem]) =>
-      log.info(s"recovery: got snapshot $shoppingCartState")
+      log.info(s"recovery: got snapshot: ${shoppingCartState.size} items")
       state = shoppingCartState
   }
 
   val dying : Receive = {
-    case SaveSnapshotAndDie => saveSnapshot(state)
-    case SaveSnapshotSuccess => self ! PoisonPill
+    case SaveSnapshotAndDie => {log.info("saving snapshot"); saveSnapshot(state); log.info("saved snapshot") }
+    case SaveSnapshotSuccess(_) => { log.info("farewell cruel world!"); self ! PoisonPill }
+    case SaveSnapshotFailure(_,_) => { log.info("Could not save snapshot!"); self ! PoisonPill }
   }
 
   val receiveCommand: Receive = {
     case ReceiveTimeout => {
+      log.info("received timeout")
       context.become(dying)
       self ! SaveSnapshotAndDie
     }
