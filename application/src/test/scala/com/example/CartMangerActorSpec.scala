@@ -1,13 +1,10 @@
 package com.example
 
-import akka.actor.Actor.Receive
 import akka.actor._
-import akka.testkit.TestProbe
+import com.example.TestSupport.AkkaTestkitContext
 import org.junit.runner.RunWith
-import org.specs2.SpecificationLike
 import org.specs2.mutable.Specification
 import org.specs2.runner.JUnitRunner
-import org.up.pi.TestSupport.AkkaTestkitContext
 
 @RunWith(classOf[JUnitRunner])
 class CartMangerActorSpec extends Specification {
@@ -39,8 +36,8 @@ class CartMangerActorSpec extends Specification {
 
       system.actorSelection(cartManager.path.child("*")) ! Identify()
 
-      expectMsgClass(classOf[ActorIdentity]).ref.map(_.path.name) must be equalTo Some("aaaaa")
-      expectMsgClass(classOf[ActorIdentity]).ref.map(_.path.name) must be equalTo Some("bbbbb")
+      val ids = Set(expectMsgClass(classOf[ActorIdentity]), expectMsgClass(classOf[ActorIdentity])).map(_.ref.map(_.path.name))
+      ids must be equalTo Set(Some("aaaaa"), Some("bbbbb"))
 
     }
   }
