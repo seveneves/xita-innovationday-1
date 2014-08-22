@@ -8,9 +8,14 @@ The application is a simple webshop that is based on the 'Xebia-Stack" consistin
 - Twitter Bootstrap
 
 ## Build and Run
-- Run ```./sbt.sh run``` to run the server locally. 
-- Open a browser using the following url: http://localhost:8080/ 
+- Execute ```./sbt.sh run``` to run the server locally. 
+- Open a browser using the following url: ```http://localhost:8080/```
 - There is a nice user interface that let's you call all endpoints of the REST interface
+
+## Create Executable jar
+- Execute ```./sbt.sh assembly```. This will create an executable jar in ```target/scala-2.10```
+- Run the server as follows: ```java -jar xita-innovationday-assembly-<version>.jar```
+
 
 ## Load source code in IDE
 _Eclipse_
