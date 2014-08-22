@@ -13,9 +13,8 @@ public class Cart extends AbstractAnnotatedAggregateRoot<Cart> {
     Cart() {
     }
 
-    @CommandHandler
-    public Cart(CreateCardCommand command) {
-        apply(new CartCreatedEvent(command.getCartId()));
+    public Cart(String id) {
+        apply(new CartCreatedEvent(id));
     }
 
     @CommandHandler
