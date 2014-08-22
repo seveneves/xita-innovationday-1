@@ -36,5 +36,12 @@ public class CartTest {
             .expectEvents(new ItemAddedEvent(CART_ID, ITEM1));
     }
 
+    @Test
+    public void removeItemFromCart() {
+        fixture.given(new CartCreatedEvent(CART_ID), new ItemAddedEvent(CART_ID, ITEM1))
+            .when(new RemoveItemCommand(CART_ID, ITEM1))
+            .expectEvents(new ItemRemovedEvent(CART_ID, ITEM1));
+    }
+
 
 }
