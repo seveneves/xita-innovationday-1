@@ -1,7 +1,6 @@
 package com.example
 
-import akka.actor.{ActorRef, Props, ActorSystem}
-import akka.contrib.pattern.{ShardRegion, ClusterSharding}
+import akka.actor.{ActorSystem, Props}
 import akka.io.IO
 import spray.can.Http
 import spray.can.Http.Bind

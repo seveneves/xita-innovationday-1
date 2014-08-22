@@ -1,9 +1,10 @@
 package com.example
 
-import akka.actor.{PoisonPill, ReceiveTimeout, ActorLogging}
-import akka.persistence.{SaveSnapshotSuccess, RecoveryCompleted, PersistentActor, SnapshotOffer}
-import EventDomain._
 import java.util.UUID
+
+import akka.actor.{ActorLogging, PoisonPill, ReceiveTimeout}
+import akka.persistence.{PersistentActor, RecoveryCompleted, SaveSnapshotSuccess, SnapshotOffer}
+import com.example.EventDomain._
 
 import scala.concurrent.duration._
 
