@@ -1,13 +1,11 @@
 package com.example
 
 import java.util.UUID
-
 import scala.concurrent.ExecutionContext
 import scala.concurrent.Future
 import scala.concurrent.duration._
 import scala.util.Failure
 import scala.util.Success
-
 import akka.actor.Actor
 import akka.actor.ActorRef
 import akka.event.Logging
@@ -17,18 +15,18 @@ import spray.http.MediaTypes._
 import spray.httpx.SprayJsonSupport._
 import spray.routing._
 import spray.routing.directives.LogEntry
+import akka.actor.Props
 
+
+object ECommerceActor {
+  def props(cartHandlerProps: Props) = Props(new ECommerceActor(cartHandlerProps))
+}
 // we don't implement our route structure directly in the service actor because
 // we want to be able to test it independently, without having to spin up an actor
-class ECommerceActor(val cartHandler: ActorRef) extends Actor with ECommerceRoute {
+class ECommerceActor(val cartHandlerProps: Props) extends Actor with ECommerceRoute {
 
-  // the HttpService trait defines only one abstract member, which
-  // connects the services environment to the enclosing actor or test
   def actorRefFactory = context
-
-  // this actor only runs our route, but you could add
-  // other things here, like request stream processing
-  // or timeout handling
+  override val cartHandler = context.actorOf(cartHandlerProps, "cart-manager")
   def receive = runRoute(myRoute)
 }
 
@@ -48,10 +46,14 @@ trait ECommerceRoute extends HttpService with StaticResources with Api {
 
 //REST Api
 trait Api extends HttpService {
-  implicit val timeout = Timeout(20 seconds)
   import akka.pattern.ask
+  import ExecutionContext.Implicits.global
+  import CartMessages._
+  import RequestMessages._
+  import OrderMessages._
+  implicit val timeout = Timeout(20 seconds)
+  
   val cartHandler: ActorRef
-  implicit def executionContext = ExecutionContext.global
 
   implicit val sessionIdGenerationHandler = RejectionHandler {
     case MissingCookieRejection(cookieName) :: _ =>
@@ -59,8 +61,6 @@ trait Api extends HttpService {
         redirect("/", StatusCodes.TemporaryRedirect)
       }
   }
-  import spray.json._
-  import DefaultJsonProtocol._
   val shoppingCartRoutes =
     pathPrefix("cart") {
       cookie("session-id") { sessionCookie =>
@@ -76,7 +76,7 @@ trait Api extends HttpService {
             }
           } ~
           get {
-            handleCartRequest(RequestContext(sessionId, GetCartRequest()))
+            handleCartRequest(RequestContext(sessionId, GetCartRequest))
           }
       }
     } ~ path("order") {
@@ -95,7 +95,7 @@ trait Api extends HttpService {
   }
 
   private def handleOrderRequest(sessionId: String) = {
-    val processingStateFuture = cartHandler.ask(RequestContext(sessionId, OrderRequest()))
+    val processingStateFuture = cartHandler.ask(RequestContext(sessionId, OrderRequest))
     onComplete(processingStateFuture) {
       case Success(resp) => resp match {
         case ok @ OrderProcessed(orderId) => complete(OrderStateResponse(ok.getClass.getSimpleName(), Some(orderId)))

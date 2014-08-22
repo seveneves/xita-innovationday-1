@@ -3,11 +3,17 @@ package com.example
 import akka.actor.ActorLogging
 import akka.actor.Actor
 import java.util.UUID
+import CartMessages._
+import RequestMessages._
+import OrderMessages._
+import ProductDomain._
 /**
  * TODO: transform this actor into a stateful actor making use of Event Sourcing to persist the
  * cart state
  */
-class ShoppingCartActor(productRepo: ProductRepo) extends Actor with ActorLogging {
+class SimpleCartActor(productRepo: ProductRepo) extends Actor with ActorLogging {
+
+  log.info(s"Creating a new ShoppingCartActor")
   import SessionRepo._
   override def receive: Receive = {
     case RequestContext(sessionId, AddToCartRequest(itemId)) => {
@@ -24,12 +30,12 @@ class ShoppingCartActor(productRepo: ProductRepo) extends Actor with ActorLoggin
         sender ! items
       }
     }
-    case RequestContext(sessionId, GetCartRequest()) => {
+    case RequestContext(sessionId, GetCartRequest) => {
       val items = getCartItems(sessionId)
       log.info(s"$sessionId: get items from cart: ${items.map(_.item.name).mkString}")
       sender ! items
     }
-    case RequestContext(sessionId, OrderRequest()) => {
+    case RequestContext(sessionId, OrderRequest) => {
       val orderState = processOrder(sessionId)
       sender ! orderState
     }

@@ -44,11 +44,14 @@ resolvers ++= Seq("Sonatype Releases"   at "http://oss.sonatype.org/content/repo
                   "Base64 Repo"         at "http://dl.bintray.com/content/softprops/maven")
 
 libraryDependencies ++= {
-  val akkaVersion  = "2.2.3"
-  val sprayVersion = "1.2.0"
+  val akkaVersion  = "2.3.5"
+  val sprayVersion = "1.3.1"
   Seq(
     "com.typesafe.akka"       %%  "akka-actor"             % akkaVersion,
     "com.typesafe.akka"       %%  "akka-slf4j"             % akkaVersion,
+    "com.typesafe.akka" 	  %% "akka-persistence-experimental" % akkaVersion,
+    "com.typesafe.akka"       %%  "akka-cluster"             % akkaVersion,
+    "com.typesafe.akka"       %%  "akka-contrib"             % akkaVersion,
     "io.spray"                %   "spray-caching"          % sprayVersion,
     "io.spray"                %   "spray-can"              % sprayVersion,
     "io.spray"                %   "spray-client"           % sprayVersion,
@@ -64,7 +67,9 @@ libraryDependencies ++= {
     "junit"                   %   "junit"                  % "4.7" % "test",
     "com.typesafe.akka"       %%  "akka-testkit"           % akkaVersion    % "test",
     "io.spray"                %   "spray-testkit"          % sprayVersion   % "test",
-    "org.specs2"              %%  "specs2"                 % "2.1.1"        % "test"
+    "org.specs2"              %%  "specs2"                 % "2.1.1"        % "test",
+   "org.scalatest"           %  "scalatest_2.10"                 % "2.2.0"        % "test",
+    "commons-io"              %  "commons-io"                     % "2.4"          % "test"
 )
 }
 
