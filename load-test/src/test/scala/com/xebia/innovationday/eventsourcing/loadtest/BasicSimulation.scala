@@ -34,6 +34,8 @@ class BasicSimulation extends Simulation {
     ) ++ json
   }
 
+  private val phones = jsonFile("phones.json").random
+
   /**
    * Instead of following a gazillion redirects, we will fake it and generate our own cookies for now.
    */
@@ -52,7 +54,7 @@ class BasicSimulation extends Simulation {
   )
 
   private def removeItemFromCart(itemId: String) = exec(http("Remove item from cart")
-    .delete(s"""/cart?itemId=$itemId""".toString())
+    .delete(s"/cart?itemId=$itemId".toString())
     .headers(Headers.json)
     .check(status.is(200))
   )
@@ -66,20 +68,35 @@ class BasicSimulation extends Simulation {
 
 	private val scn = scenario("BasicSimulation").exec(
     addDefaultCookies,
-    addToCart("motorola-xoom-with-wi-fi"),
+
+    feed(phones),
+    addToCart("${id}"),
     doPause,
-    addToCart("motorola-xoom"),
+    feed(phones),
+    addToCart("${id}"),
     doPause,
-    removeItemFromCart("motorola-xoom-with-wi-fi"),
+    removeItemFromCart("${id}"), // remove the last added phone
+    doPause,
+    placeOrder,
+
+    // Urs wants this twice...
+    doPause,
+    feed(phones),
+    addToCart("${id}"),
+    doPause,
+    feed(phones),
+    addToCart("${id}"),
+    doPause,
+    removeItemFromCart("${id}"), // remove the last added phone
     doPause,
     placeOrder
   )
 
 	setUp(
     scn.inject(
-      //atOnceUsers(1)
-      rampUsers(100000) over (10 seconds),
-      constantUsersPerSec(100000) during (1 minutes)
+//      atOnceUsers(1)
+      rampUsers(10000) over (10 seconds),
+      constantUsersPerSec(10000) during (1 minutes)
     )
   ).protocols(httpProtocol)
 }
