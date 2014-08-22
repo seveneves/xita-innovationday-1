@@ -10,9 +10,9 @@ import scala.concurrent.duration._
 
 class PersistentShoppingCartActor(productRepo: ProductRepo) extends PersistentActor with ActorLogging {
 
-  override def persistenceId = "cart-id-1"
+  override def persistenceId = context.self.path.name
 
-  val receiveTimeout: FiniteDuration = 2 seconds
+  val receiveTimeout: FiniteDuration = 20 seconds
 
   var state = Seq[ShoppingCartItem]()
 
