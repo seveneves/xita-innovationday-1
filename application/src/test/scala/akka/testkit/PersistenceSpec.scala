@@ -67,8 +67,8 @@ trait Cleanup { this: AkkaSpec ⇒
   }
 }
 
-abstract class NamedProcessor(name: String) extends Processor {
-  override def processorId: String = name
+abstract class NamedPersistentActor(name: String) extends PersistentActor {
+  override def persistenceId: String = name
 }
 
 class TestException(msg: String) extends Exception(msg) with NoStackTrace
