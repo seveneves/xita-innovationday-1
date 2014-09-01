@@ -80,5 +80,5 @@ object OrderMessages {
 }
 
 object RequestMessages {
-  case class RequestContext[T](sessionId: String, t: T)
+  case class Envelope[T](sessionId: String, t: T)
 }

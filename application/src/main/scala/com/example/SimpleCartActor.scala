@@ -16,26 +16,26 @@ class SimpleCartActor(productRepo: ProductRepo) extends Actor with ActorLogging 
   log.info(s"Creating a new ShoppingCartActor")
   import SessionRepo._
   override def receive: Receive = {
-    case RequestContext(sessionId, AddToCartRequest(itemId)) => {
+    case Envelope(sessionId, AddToCartRequest(itemId)) => {
       doWithItem(itemId) { item =>
         log.info(s"$sessionId: update cart with item: ${item.name}")
         val items = upsertCart(sessionId, item)
         sender ! items
       }
     }
-    case RequestContext(sessionId, RemoveFromCartRequest(itemId)) => {
+    case Envelope(sessionId, RemoveFromCartRequest(itemId)) => {
       doWithItem(itemId) { item =>
         log.info(s"$sessionId: remove item: ${item.name} from cart")
         val items = removeFromCart(sessionId, item)
         sender ! items
       }
     }
-    case RequestContext(sessionId, GetCartRequest) => {
+    case Envelope(sessionId, GetCartRequest) => {
       val items = getCartItems(sessionId)
       log.info(s"$sessionId: get items from cart: ${items.map(_.item.name).mkString}")
       sender ! items
     }
-    case RequestContext(sessionId, OrderRequest) => {
+    case Envelope(sessionId, OrderRequest) => {
       val orderState = processOrder(sessionId)
       sender ! orderState
     }

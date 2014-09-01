@@ -4,6 +4,8 @@ import akka.actor.ActorSystem
 import org.specs2.mutable.After
 import com.typesafe.config.ConfigFactory
 import java.io.File
+import org.specs2.mutable.Before
+import org.apache.commons.io.FileUtils
 
 object TestSupport {
 
@@ -22,8 +24,7 @@ object TestSupport {
   }
 
   /** Simple specs2 bridge for Akka TestKit. */
-  abstract class AkkaPersistentTestkitContext(actorSystem: ActorSystem) extends AkkaTestkitContext(actorSystem) {
-
+  abstract class AkkaPersistentTestkitContext(actorSystem: ActorSystem) extends AkkaTestkitContext(actorSystem) with Before {
     def this() = {
       this(ActorSystem("TestActorSystem", ConfigFactory.parseString(
         """
@@ -42,19 +43,29 @@ object TestSupport {
         |   lifecycle = on
         |}
       """.stripMargin)))
-      println("constructor ")
       owner = true
     }
 
-    override def after {
-      super.after
-      if (owner) {
-        deleteLocalJournalByConfigKey("akka.persistence.journal.leveldb.dir")
-        deleteLocalJournalByConfigKey("akka.persistence.snapshot-store.local.dir")
-      }
+    protected def cleanup() = {
+      deleteLocalJournalByConfigKey("akka.persistence.journal.leveldb.dir")
+      deleteLocalJournalByConfigKey("akka.persistence.snapshot-store.local.dir")
       def deleteLocalJournalByConfigKey(configKey: String) = {
         val dir = system.settings.config.getString(configKey)
-        new File(dir).delete()
+        import util.control.Exception._
+        allCatch.opt{FileUtils.deleteDirectory(new File(dir))}
+      }
+
+    }
+
+    override def before {
+      if (owner)  cleanup()
+    }
+    
+    override def after {
+      super.after
+      if (owner)  {
+        cleanup()
+        system.shutdown
       }
     }
   }

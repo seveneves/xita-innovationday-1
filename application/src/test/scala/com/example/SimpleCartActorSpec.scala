@@ -19,7 +19,7 @@ class SimpleCartActorSpec extends Specification
       val reverseActor = system.actorOf(Props(new SimpleCartActor(productRepo)), "cart-actor")
       import akka.pattern.ask
 
-      reverseActor ! RequestContext("sessionId-1", GetCartRequest)
+      reverseActor ! Envelope("sessionId-1", GetCartRequest)
 
       expectMsg(Seq())
 
@@ -28,11 +28,11 @@ class SimpleCartActorSpec extends Specification
       val reverseActor = system.actorOf(Props(new SimpleCartActor(productRepo)), "cart-actor")
       import akka.pattern.ask
       val product = productRepo.products.head
-      reverseActor ! RequestContext("sessionId-2", AddToCartRequest(product.id))
+      reverseActor ! Envelope("sessionId-2", AddToCartRequest(product.id))
 
       expectMsg(Seq(ShoppingCartItem(product, 1)))
 
-      reverseActor ! RequestContext("sessionId-2", OrderRequest)
+      reverseActor ! Envelope("sessionId-2", OrderRequest)
       expectMsgClass(classOf[OrderProcessed])
     }
   }

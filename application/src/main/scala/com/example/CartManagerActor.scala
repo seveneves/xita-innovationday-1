@@ -11,8 +11,7 @@ object CartManagerActor {
 class CartManagerActor(shoppingCartProps: Props) extends Actor with ActorLogging {
   import RequestMessages._
   override def receive: Receive = {
-    case RequestContext(sessionId, payload) =>
-
+    case Envelope(sessionId, payload) =>
       context.child(sessionId).getOrElse({
         log.info(s"Creating new shopping cart actor for session $sessionId")
         context.actorOf(shoppingCartProps, sessionId)

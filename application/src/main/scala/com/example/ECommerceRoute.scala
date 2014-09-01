@@ -61,32 +61,32 @@ trait Api extends HttpService {
         redirect("/", StatusCodes.TemporaryRedirect)
       }
   }
+  //custom directive to retrieve cookie
+  val sessionId:Directive1[String] = cookie("session-id").flatMap {
+    case c:HttpCookie => provide(c.content)
+    case _ => reject
+  }
   val shoppingCartRoutes =
     pathPrefix("cart") {
-      cookie("session-id") { sessionCookie =>
-        val sessionId = sessionCookie.content
-        post {
+        (post & sessionId) {sessionId  =>  
           entity(as[AddToCartRequest]) { addMsg =>
-            handleCartRequest(RequestContext(sessionId, addMsg))
+            handleCartRequest(Envelope(sessionId, addMsg))
           }
         } ~
           delete {
-            parameter('itemId) { itemId =>
-              handleCartRequest(RequestContext(sessionId, RemoveFromCartRequest(itemId)))
+            (parameter('itemId) & sessionId) {(itemId, sessionId) =>
+              handleCartRequest(Envelope(sessionId, RemoveFromCartRequest(itemId)))
             }
           } ~
-          get {
-            handleCartRequest(RequestContext(sessionId, GetCartRequest))
+          (get & sessionId) { sessionId => 
+            handleCartRequest(Envelope(sessionId, GetCartRequest))
           }
-      }
     } ~ path("order") {
-      cookie("session-id") { sessionCookie =>
-        put {
-          handleOrderRequest(sessionCookie.content)
+        (put & sessionId) { sessionId => 
+          handleOrderRequest(sessionId)
         }
-      }
     }
-  private def handleCartRequest[T](reqCtx: RequestContext[T]) = {
+  private def handleCartRequest[T](reqCtx: Envelope[T]) = {
     val respFuture = cartHandler.ask(reqCtx).mapTo[Seq[ShoppingCartItem]]
     onComplete(respFuture) {
       case Success(res) => complete(res)
@@ -95,7 +95,7 @@ trait Api extends HttpService {
   }
 
   private def handleOrderRequest(sessionId: String) = {
-    val processingStateFuture = cartHandler.ask(RequestContext(sessionId, OrderRequest))
+    val processingStateFuture = cartHandler.ask(Envelope(sessionId, OrderRequest))
     onComplete(processingStateFuture) {
       case Success(resp) => resp match {
         case ok @ OrderProcessed(orderId) => complete(OrderStateResponse(ok.getClass.getSimpleName(), Some(orderId)))
