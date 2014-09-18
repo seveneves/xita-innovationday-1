@@ -16,6 +16,7 @@ import spray.httpx.SprayJsonSupport._
 import spray.routing._
 import spray.routing.directives.LogEntry
 import akka.actor.Props
+import com.example.util.DirectiveExtensions
 
 
 object ECommerceActor {
@@ -45,7 +46,7 @@ trait ECommerceRoute extends HttpService with StaticResources with Api {
 }
 
 //REST Api
-trait Api extends HttpService {
+trait Api extends HttpService with DirectiveExtensions{
   import akka.pattern.ask
   import ExecutionContext.Implicits.global
   import CartMessages._
@@ -55,16 +56,9 @@ trait Api extends HttpService {
   
   val cartHandler: ActorRef
 
-  implicit val sessionIdGenerationHandler = RejectionHandler {
-    case MissingCookieRejection(cookieName) :: _ =>
-      setCookie(HttpCookie("session-id", content = UUID.randomUUID().toString())) {
-        redirect("/", StatusCodes.TemporaryRedirect)
-      }
-  }
   //custom directive to retrieve cookie
-  val sessionId:Directive1[String] = cookie("session-id").flatMap {
+  val sessionId:Directive1[String] = getOrCreateSessionCookie("session-id").flatMap {
     case c:HttpCookie => provide(c.content)
-    case _ => reject
   }
   val shoppingCartRoutes =
     pathPrefix("cart") {

@@ -1,4 +1,4 @@
-package com.example
+package com.example.util
 import akka.actor.{ ActorContext, ActorRef, Props }
 
 trait CreationSupport {

@@ -1,22 +1,21 @@
 package com.example
 
-import akka.actor.{ ActorLogging, Props, Actor }
+import akka.actor.Actor
+import akka.actor.ActorLogging
+import akka.actor.Props
 import akka.contrib.pattern.ShardRegion.Passivate
-
+import util._
 object CartManagerActor {
   def props(cartProps: Props) = Props(new CartManagerActor(cartProps))
 
 }
-
-class CartManagerActor(shoppingCartProps: Props) extends Actor with ActorLogging {
+ 
+class CartManagerActor(shoppingCartProps: Props) extends Actor with ActorContextCreationSupport with ActorLogging {
+  
   import RequestMessages._
   override def receive: Receive = {
     case Envelope(sessionId, payload) =>
-      context.child(sessionId).getOrElse({
-        log.info(s"Creating new shopping cart actor for session $sessionId")
-        context.actorOf(shoppingCartProps, sessionId)
-      }) forward payload
-
+      getOrCreateChild(shoppingCartProps, sessionId) forward payload
     case Passivate(calmDownMessage) =>
       sender ! calmDownMessage
   }
