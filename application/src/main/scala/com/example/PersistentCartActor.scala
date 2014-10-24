@@ -2,16 +2,22 @@ package com.example
 
 import java.util.UUID
 
-import akka.actor.{ ActorLogging, PoisonPill, ReceiveTimeout, Props }
 import akka.actor._
 import akka.persistence._
 import akka.contrib.pattern.ShardRegion
-import akka.contrib.pattern.ShardRegion.Passivate
 import scala.concurrent.duration._
-import analytics._
 import CartMessages._
 import OrderMessages._
 import ProductDomain._
+import akka.persistence.SaveSnapshotFailure
+import akka.persistence.SaveSnapshotSuccess
+import scala.Some
+import akka.persistence.SnapshotOffer
+import com.example.OrderMessages.OrderProcessed
+import com.example.analytics.AnalyticsActor
+import akka.contrib.pattern.DistributedPubSubExtension
+import akka.contrib.pattern.DistributedPubSubMediator.Publish
+
 import RequestMessages._
 object PersistentCartActor {
 
@@ -55,7 +61,7 @@ class PersistentCartActor(productRepo: ProductRepo) extends PersistentActor with
 
   override def persistenceId = context.self.path.name
 
-  val analytics: ActorRef = Analytics(context.system)
+  val mediator = DistributedPubSubExtension(context.system).mediator
 
   val receiveTimeout: FiniteDuration = 20 seconds
 
@@ -73,8 +79,7 @@ class PersistentCartActor(productRepo: ProductRepo) extends PersistentActor with
   }
 
   def publishEvent(event: Event) = {
-    analytics ! event
-    context.system.eventStream.publish(event)
+    mediator ! Publish(AnalyticsActor.topic, event)
   }
 
   val receiveRecover: Receive = {
