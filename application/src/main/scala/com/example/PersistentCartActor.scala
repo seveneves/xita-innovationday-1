@@ -2,13 +2,20 @@ package com.example
 
 import java.util.UUID
 
-import akka.actor.{ ActorLogging, PoisonPill, ReceiveTimeout, Props }
+import akka.actor._
 import akka.persistence._
 
 import scala.concurrent.duration._
 import CartMessages._
 import OrderMessages._
 import ProductDomain._
+import akka.persistence.SaveSnapshotFailure
+import akka.persistence.SaveSnapshotSuccess
+import scala.Some
+import akka.persistence.SnapshotOffer
+import com.example.OrderMessages.OrderProcessed
+import com.example.analytics.Analytics
+
 object PersistentCartActor {
 
   def props(productRepo: ProductRepo) = Props[PersistentCartActor](new PersistentCartActor(productRepo))
@@ -42,6 +49,8 @@ class PersistentCartActor(productRepo: ProductRepo) extends PersistentActor with
 
   override def persistenceId = context.self.path.name
 
+  val analytics: ActorRef = Analytics(context.system)
+
   val receiveTimeout: FiniteDuration = 20 seconds
 
   var cart = CartItems()
@@ -55,6 +64,11 @@ class PersistentCartActor(productRepo: ProductRepo) extends PersistentActor with
       case CartCheckedoutEvent(_) =>
         cart = cart.clear()
     }
+  }
+
+  def publishEvent(event: Event) = {
+    analytics ! event
+    context.system.eventStream.publish(event)
   }
 
   val receiveRecover: Receive = {
@@ -86,6 +100,7 @@ class PersistentCartActor(productRepo: ProductRepo) extends PersistentActor with
       doWithItem(itemId) { item =>
         persist(ItemAddedEvent(itemId)) { evt =>
           updateState(evt)
+          publishEvent(evt)
           sender ! cart.items
         }
       }
@@ -94,6 +109,7 @@ class PersistentCartActor(productRepo: ProductRepo) extends PersistentActor with
       doWithItem(itemId) { item =>
         persist(ItemRemovedEvent(itemId)) { evt =>
           updateState(evt)
+          publishEvent(evt)
           sender ! cart.items
         }
       }
@@ -109,6 +125,7 @@ class PersistentCartActor(productRepo: ProductRepo) extends PersistentActor with
         val orderId: UUID = UUID.randomUUID()
         persist(CartCheckedoutEvent(orderId)) { evt =>
           updateState(evt)
+          publishEvent(evt)
           saveSnapshot(cart)
           sender ! OrderProcessed(orderId.toString)
         }
