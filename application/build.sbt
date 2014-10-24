@@ -62,6 +62,7 @@ libraryDependencies ++= {
     "com.github.nscala-time"  %%  "nscala-time"            % "0.4.2",
     "ch.qos.logback"          %   "logback-classic"        % "1.0.12",
     "org.apache.commons"      %   "commons-email"          % "1.2",
+    "com.github.ddevore" %% "akka-persistence-mongo-casbah" % "0.7.4-SNAPSHOT",
     "joda-time" 	      %   "joda-time" 	           % "2.0",   
     "org.joda"  	      %   "joda-convert"           % "1.1",
     "junit"                   %   "junit"                  % "4.7" % "test",
