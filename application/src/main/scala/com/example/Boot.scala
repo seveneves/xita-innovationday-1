@@ -16,10 +16,15 @@ trait WebApp extends App {
   // always start singletons immediately
   Analytics(system)
 
-  val cartHandlerProps = CartManagerActor.props(PersistentCartActor.props(productRepo))
-  // create and start our service actor
-  val service = system.actorOf(ECommerceActor.props(cartHandlerProps), "e-commerce-route")
+  //val cartHandlerProps = CartManagerActor.props(PersistentCartActor.props(productRepo))
+  
+  //start sharding
+  ClusterCartManagerActorProvider.startSharding(system)
 
+  
+  // create and start our service actor
+  val service = system.actorOf(ECommerceActor.props(), "e-commerce-route")
+  
   // To run project on Heroku, get PORT from environment
   val httpHost = "0.0.0.0"
   val httpPort = Option(System.getenv("PORT")).getOrElse("8080").toInt

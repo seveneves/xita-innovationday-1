@@ -41,10 +41,12 @@ class CartMangerActorSpec extends Specification {
         probe.ref
       }
 
-      val probe = new TestProbe(system) 
-      val cartActorStubProps = Props(new Wrapper(probe.ref))
+      val probe = new TestProbe(system)
+      //val cartActorStubProps = Props(new Wrapper(probe.ref))
 
-      val cartManager = system.actorOf(Props(new CartManagerActor(cartActorStubProps)))
+      val cartManager = system.actorOf(Props(new CartManagerActor {
+        override def cartActor = probe.ref
+      }))
 
       cartManager ! Envelope("aaaaa", "Bla")
 
@@ -58,10 +60,10 @@ class CartMangerActorSpec extends Specification {
       cartManager ! Envelope("aaaaa", "Foo")
       cartManager ! Envelope("bbbbb", "Bar")
 
-       probe.expectMsg("Foo")
-        probe.expectMsg("Bar")
-//      expectMsg("Echoing: Foo")
-//      expectMsg("Echoing: Bar")
+      probe.expectMsg("Foo")
+      probe.expectMsg("Bar")
+      //      expectMsg("Echoing: Foo")
+      //      expectMsg("Echoing: Bar")
 
       system.actorSelection(cartManager.path.child("*")) ! Identify()
 
@@ -72,15 +74,20 @@ class CartMangerActorSpec extends Specification {
 
     "reply with passivation content back to sender" in new AkkaTestkitContext() {
 
+      val probe = TestProbe()
       val cartActorStubProps = Props(new Actor {
         override def receive: Receive = {
           case m: String => sender ! s"Echoing: $m"
         }
       })
 
-      val cartManager = system.actorOf(Props(new CartManagerActor(cartActorStubProps)))
+      //  val cartManager = system.actorOf(Props(new CartManagerActor(cartActorStubProps)))
+      val cartManager = system.actorOf(Props(new CartManagerActor {
+        override def cartActor = probe.ref
+      }))
 
       cartManager ! Passivate("Content")
+      probe.reply("Echoing: Content")
       expectMsg("Content")
 
     }

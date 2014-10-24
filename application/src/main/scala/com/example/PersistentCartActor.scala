@@ -2,24 +2,29 @@ package com.example
 
 import java.util.UUID
 
+import akka.actor.{ ActorLogging, PoisonPill, ReceiveTimeout, Props }
 import akka.actor._
 import akka.persistence._
-
+import akka.contrib.pattern.ShardRegion
+import akka.contrib.pattern.ShardRegion.Passivate
 import scala.concurrent.duration._
 import CartMessages._
 import OrderMessages._
 import ProductDomain._
-import akka.persistence.SaveSnapshotFailure
-import akka.persistence.SaveSnapshotSuccess
-import scala.Some
-import akka.persistence.SnapshotOffer
-import com.example.OrderMessages.OrderProcessed
-import com.example.analytics.Analytics
-
+import RequestMessages._
 object PersistentCartActor {
 
   def props(productRepo: ProductRepo) = Props[PersistentCartActor](new PersistentCartActor(productRepo))
+  //clustering and sharding
+  val shardName: String = "cart"
+  val idExtractor: ShardRegion.IdExtractor = {
+    case Envelope(id, payload) ⇒ (id, payload)
+  }
+  val shardResolver: ShardRegion.ShardResolver = {
+    case Envelope(id, _) ⇒ (math.abs(id.hashCode) % 100).toString
+  }
 
+  //case classes
   sealed trait Event
   case class ItemAddedEvent(itemId: String) extends Event
   case class ItemRemovedEvent(itemId: String) extends Event

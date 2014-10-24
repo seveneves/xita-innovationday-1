@@ -20,14 +20,16 @@ import com.example.util.DirectiveExtensions
 
 
 object ECommerceActor {
-  def props(cartHandlerProps: Props) = Props(new ECommerceActor(cartHandlerProps))
+  //def props(cartHandlerProps: Props) = Props(new ECommerceActor(cartHandlerProps))
+   def props() = Props(new ECommerceActor())
 }
 // we don't implement our route structure directly in the service actor because
 // we want to be able to test it independently, without having to spin up an actor
-class ECommerceActor(val cartHandlerProps: Props) extends Actor with ECommerceRoute {
+class ECommerceActor extends Actor with ECommerceRoute with ClusterCartManagerActorProvider {
+//class ECommerceActor(val cartHandlerProps: Props) extends Actor with ECommerceRoute with ClusterCartManagerActorProvider {
 
   def actorRefFactory = context
-  override val cartHandler = context.actorOf(cartHandlerProps, "cart-manager")
+  //override val cartHandler = context.actorOf(cartHandlerProps, "cart-manager")
   def receive = runRoute(myRoute)
 }
 
