@@ -8,6 +8,7 @@ import akka.persistence._
 import akka.contrib.pattern.ShardRegion
 import akka.contrib.pattern.ShardRegion.Passivate
 import scala.concurrent.duration._
+import analytics._
 import CartMessages._
 import OrderMessages._
 import ProductDomain._
