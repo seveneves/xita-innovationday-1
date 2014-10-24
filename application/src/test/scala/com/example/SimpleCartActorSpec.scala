@@ -1,23 +1,20 @@
 package com.example
 
-import spray.testkit.Specs2RouteTest
-import org.specs2.mutable.Specification
-import akka.actor.actorRef2Scala
-import akka.actor.Props
+import akka.actor.{Props, actorRef2Scala}
 import akka.testkit.TestSupport._
-import akka.testkit.TestSupport
-import RequestMessages._
-import CartMessages._
-import OrderMessages._
-import ProductDomain._
+import com.example.CartMessages._
+import com.example.OrderMessages._
+import com.example.RequestMessages._
+import org.specs2.mutable.Specification
+import spray.testkit.Specs2RouteTest
 class SimpleCartActorSpec extends Specification
   with Specs2RouteTest {
 
-  val productRepo = ProductRepo()
+  val productRepo = ProductRepoExtension(system).productRepo
+
   "The CartActor" should {
     "read items" in new AkkaTestkitContext() {
       val reverseActor = system.actorOf(Props(new SimpleCartActor(productRepo)), "cart-actor")
-      import akka.pattern.ask
 
       reverseActor ! Envelope("sessionId-1", GetCartRequest)
 
@@ -26,7 +23,6 @@ class SimpleCartActorSpec extends Specification
     }
     "order" in new AkkaTestkitContext() {
       val reverseActor = system.actorOf(Props(new SimpleCartActor(productRepo)), "cart-actor")
-      import akka.pattern.ask
       val product = productRepo.products.head
       reverseActor ! Envelope("sessionId-2", AddToCartRequest(product.id))
 

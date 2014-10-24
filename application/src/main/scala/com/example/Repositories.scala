@@ -1,10 +1,11 @@
 package com.example
-import java.io.File
+
+import akka.actor.{ExtendedActorSystem, Extension, ExtensionKey}
+import com.example.CartMessages._
+import com.example.ProductDomain._
 import spray.json.JsonParser
+
 import scala.io.Source
-import java.net.URI
-import CartMessages._
-import ProductDomain._
 
 /**
  * Product repository trait
@@ -16,14 +17,11 @@ trait ProductRepo extends Serializable {
 
 class ProductRepoImpl(val products: Seq[Device]) extends ProductRepo 
 
-/**
- * Loads products stored in static resources
- * /webapp/root/phones
- * /root/\* will be accessible from the classpath
- */
-object ProductRepo {
 
-  def apply(): ProductRepo = {
+private[example] object ProductRepoExtension extends ExtensionKey[ProductRepoExtension]
+
+private[example] class ProductRepoExtension(system: ExtendedActorSystem) extends Extension {
+  val productRepo = {
     val products = productFilePaths.map { path =>
       val productStr = Source.fromInputStream(getClass.getResourceAsStream(path)).mkString
       val jsonAst = JsonParser(productStr)
@@ -42,51 +40,47 @@ object ProductRepo {
   private def productFilePaths: Seq[String] = {
     val productDirRoot = "/root/phones"
     import org.json4s._
-    import org.json4s.JsonDSL._
     import org.json4s.native.JsonMethods._
-    val productsStr = Source.fromInputStream(ProductRepo.getClass.getResourceAsStream(s"$productDirRoot/phones.json")).mkString
+    val productsStr = Source.fromInputStream(ProductRepoExtension.getClass.getResourceAsStream(s"$productDirRoot/phones.json")).mkString
     val jsonAst = parse(productsStr)
-    val productsJStr = (jsonAst \\ "id" \\ classOf[JString])
+    val productsJStr = jsonAst \\ "id" \\ classOf[JString]
     productsJStr.map(p => s"$productDirRoot/$p.json")
   }
-
 }
-
-
 
 /**
  * Session repository trait
  */
 trait SessionRepo {
-  import collection.mutable._
+  import scala.collection._
 
-  val sessionState = Map[String, Seq[ShoppingCartItem]]()
+  val sessionState = mutable.Map[String, mutable.Seq[ShoppingCartItem]]()
 
-  def removeFromCart(sessionId: String, item: Device): Seq[ShoppingCartItem] = {
+  def removeFromCart(sessionId: String, item: Device): mutable.Seq[ShoppingCartItem] = {
     val updatedItems = sessionState.get(sessionId)
       .map(_.filterNot(_.item.id == item.id))
-      .getOrElse(Seq())
+      .getOrElse(mutable.Seq())
     sessionState += (sessionId -> updatedItems)
     updatedItems
   }
 
-  def getCartItems(sessionId: String) = sessionState.get(sessionId).getOrElse(Seq())
+  def getCartItems(sessionId: String) = sessionState.getOrElse(sessionId, mutable.Seq())
 
-  def checkoutCart(sessionId: String): Seq[ShoppingCartItem] = {
+  def checkoutCart(sessionId: String): mutable.Seq[ShoppingCartItem] = {
     val items = getCartItems(sessionId)
-    sessionState += (sessionId -> Seq())
+    sessionState += (sessionId -> mutable.Seq())
     items
   }
 
-  def upsertCart(sessionId: String, item: Device): Seq[ShoppingCartItem] = {
+  def upsertCart(sessionId: String, item: Device): mutable.Seq[ShoppingCartItem] = {
     val updatedItems = sessionState.get(sessionId) match {
       case Some(items) => {
         val updatedItem = items.find(_.item.id == item.id)
-          .map(item => item.copy(count = (item.count + 1)))
+          .map(item => item.copy(count = item.count + 1))
           .getOrElse(ShoppingCartItem(item))
         updatedItem +: items.filterNot(_.item.id == item.id)
       }
-      case None => Seq(ShoppingCartItem(item))
+      case None => mutable.Seq(ShoppingCartItem(item))
     }
     sessionState += (sessionId -> updatedItems)
     updatedItems

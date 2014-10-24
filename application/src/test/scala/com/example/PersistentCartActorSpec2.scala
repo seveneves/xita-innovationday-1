@@ -32,13 +32,14 @@ class PersistentCartActorSpec2 extends AkkaPersistentTestkitContext with Specifi
       Success()
     }
   }
-  val productRepo = ProductRepo()
+  val productRepo = ProductRepoExtension(system).productRepo
+
 
   "The CartActor" should {
     val product = productRepo.products.head
 
     "return carts contents" in {
-      val cart = system.actorOf(PersistentCartActor.props(productRepo))
+      val cart = system.actorOf(PersistentCartActor.props())
       cart ! GetCartRequest
       expectMsg(Seq())
 
@@ -49,7 +50,7 @@ class PersistentCartActorSpec2 extends AkkaPersistentTestkitContext with Specifi
       expectMsg(Seq(ShoppingCartItem(product, 1)))
     }
     "snapshot when timing out" in {
-      val cart = system.actorOf(PersistentCartActor.props(productRepo))
+      val cart = system.actorOf(PersistentCartActor.props())
       watch(cart)
       cart ! ReceiveTimeout
       expectMsgPF() {

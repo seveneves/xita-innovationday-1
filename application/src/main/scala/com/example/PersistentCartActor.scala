@@ -3,25 +3,19 @@ package com.example
 import java.util.UUID
 
 import akka.actor._
-import akka.persistence._
-import akka.contrib.pattern.ShardRegion
-import scala.concurrent.duration._
-import CartMessages._
-import OrderMessages._
-import ProductDomain._
-import akka.persistence.SaveSnapshotFailure
-import akka.persistence.SaveSnapshotSuccess
-import scala.Some
-import akka.persistence.SnapshotOffer
-import com.example.OrderMessages.OrderProcessed
-import com.example.analytics.AnalyticsActor
-import akka.contrib.pattern.DistributedPubSubExtension
 import akka.contrib.pattern.DistributedPubSubMediator.Publish
+import akka.contrib.pattern.{DistributedPubSubExtension, ShardRegion}
+import akka.persistence.{SaveSnapshotFailure, SaveSnapshotSuccess, SnapshotOffer, _}
+import com.example.CartMessages._
+import com.example.OrderMessages.{OrderProcessed, _}
+import com.example.ProductDomain._
+import com.example.RequestMessages._
+import com.example.analytics.AnalyticsActor
 
-import RequestMessages._
+import scala.concurrent.duration._
 object PersistentCartActor {
 
-  def props(productRepo: ProductRepo) = Props[PersistentCartActor](new PersistentCartActor(productRepo))
+  def props() = Props[PersistentCartActor](new PersistentCartActor())
   //clustering and sharding
   val shardName: String = "cart"
   val idExtractor: ShardRegion.IdExtractor = {
@@ -56,8 +50,8 @@ object PersistentCartActor {
 
 }
 
-class PersistentCartActor(productRepo: ProductRepo) extends PersistentActor with ActorLogging {
-  import PersistentCartActor._
+class PersistentCartActor() extends PersistentActor with ActorLogging {
+  import com.example.PersistentCartActor._
 
   override def persistenceId = context.self.path.name
 
@@ -70,7 +64,7 @@ class PersistentCartActor(productRepo: ProductRepo) extends PersistentActor with
   def updateState(event: Event): Unit = {
     event match {
       case ItemAddedEvent(itemId) =>
-        cart = cart.update(productRepo.productMap(itemId))
+        cart = cart.update(ProductRepoExtension(context.system).productRepo.productMap(itemId))
       case ItemRemovedEvent(itemId) =>
         cart = cart.remove(itemId)
       case CartCheckedoutEvent(_) =>
@@ -145,7 +139,7 @@ class PersistentCartActor(productRepo: ProductRepo) extends PersistentActor with
   }
 
   private def doWithItem(itemId: String)(item: Device => Unit) = {
-    val device = productRepo.productMap.get(itemId) match {
+    val device = ProductRepoExtension(context.system).productRepo.productMap.get(itemId) match {
       case Some(device) => item(device)
       case None => sender ! akka.actor.Status.Failure(new IllegalArgumentException(s"Product with id $itemId not found."))
     }

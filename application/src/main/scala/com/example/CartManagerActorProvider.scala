@@ -16,7 +16,7 @@ object ClusterCartManagerActorProvider {
   def startSharding(system: ActorSystem) = {
     ClusterSharding(system).start(
       typeName = PersistentCartActor.shardName,
-      entryProps = Some(PersistentCartActor.props(ProductRepo())),
+      entryProps = Some(PersistentCartActor.props()),
       idExtractor = PersistentCartActor.idExtractor,
       shardResolver = PersistentCartActor.shardResolver)
   }

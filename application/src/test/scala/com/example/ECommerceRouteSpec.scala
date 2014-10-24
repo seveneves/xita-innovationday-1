@@ -12,14 +12,12 @@ import spray.routing.MissingCookieRejection
 import spray.http.HttpCookie
 import spray.http.HttpHeaders.Cookie
 import spray.httpx.SprayJsonSupport._
-import spray.routing._
 import CartMessages._
-import OrderMessages._
 @RunWith(classOf[JUnitRunner])
 class ECommerceRouteSpec extends Specification with Specs2RouteTest with ECommerceRoute {
 
-  def productRepo = ProductRepo()
   def actorRefFactory = system
+  def productRepo = ProductRepoExtension(system).productRepo
   override val cartHandler = {
     val probe = TestProbe()
     probe.setAutoPilot {

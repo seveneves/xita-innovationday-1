@@ -28,21 +28,22 @@ object TestSupport {
     def this() = {
       this(ActorSystem("TestActorSystem", ConfigFactory.parseString(
         """
-        |akka.loglevel = "DEBUG"
-        |   akka.persistence {
-		|	journal.leveldb.dir = "target/example/journal"
-		|	snapshot-store.local.dir = "target/example/snapshots"
-		|
-		|	# DO NOT USE THIS IN PRODUCTION !!!
-		|	# See also https://github.com/typesafehub/activator/issues/287
-		|	journal.leveldb.native = false
-        | }
-        |akka.actor.debug {
-        |   receive = on
-        |   autoreceive = on
-        |   lifecycle = on
-        |}
-      """.stripMargin)))
+          |akka.loglevel = "DEBUG"
+          |   akka.persistence {
+          	 	|	journal.leveldb.dir = "target/example/journal"
+          	 	|	snapshot-store.local.dir = "target/example/snapshots"
+          	 	|
+          	 	|	# DO NOT USE THIS IN PRODUCTION !!!
+          	 	|	# See also https://github.com/typesafehub/activator/issues/287
+          	 	|	journal.leveldb.native = false
+          | }
+          |akka.actor.debug {
+          |   receive = on
+          |   autoreceive = on
+          |   lifecycle = on
+          |}
+          |akka.actor.provider = "akka.cluster.ClusterActorRefProvider"
+        """.stripMargin)))
       owner = true
     }
 
@@ -53,17 +54,17 @@ object TestSupport {
         val dir = system.settings.config.getString(configKey)
         import util.control.Exception._
         allCatch.opt{FileUtils.deleteDirectory(new File(dir))}
-      }
+        }
 
     }
 
     override def before {
-      if (owner)  cleanup()
+      if (owner) cleanup()
     }
-    
+
     override def after {
       super.after
-      if (owner)  {
+      if (owner) {
         cleanup()
         system.shutdown
       }
