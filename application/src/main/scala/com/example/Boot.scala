@@ -5,11 +5,16 @@ import akka.actor.Props
 import akka.io.IO
 import spray.can.Http
 import spray.can.Http.Bind
+import com.example.analytics.Analytics
+
 trait WebApp extends App {
 
   val productRepo = ProductRepo.apply()
  
   implicit val system = ActorSystem("shopping-cart")
+
+  // always start singletons immediately
+  Analytics(system)
 
   val cartHandlerProps = CartManagerActor.props(PersistentCartActor.props(productRepo))
   // create and start our service actor
